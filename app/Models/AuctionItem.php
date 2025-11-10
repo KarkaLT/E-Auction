@@ -17,6 +17,13 @@ class AuctionItem extends Model
         'end_time',
     ];
 
+    protected $casts = [
+        'end_time' => 'datetime',
+        'starting_price' => 'decimal:2',
+        'bid_increment' => 'decimal:2',
+        'current_price' => 'decimal:2',
+    ];
+
     public function photos(): HasMany
     {
         return $this->hasMany(AuctionItemPhoto::class);
