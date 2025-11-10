@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -60,5 +61,20 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function auctionItems(): HasMany
+    {
+        return $this->hasMany(AuctionItem::class, 'seller_id');
+    }
+
+    public function wonAuctionItems(): HasMany
+    {
+        return $this->hasMany(AuctionItem::class, 'winner_id');
+    }
+
+    public function auctionItemComments(): HasMany
+    {
+        return $this->hasMany(AuctionItemComment::class);
     }
 }
