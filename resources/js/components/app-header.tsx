@@ -24,9 +24,10 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import { cn, isSameUrl } from '@/lib/utils';
 import { dashboard, home, login } from '@/routes';
+import { users } from '@/routes/admin';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Menu } from 'lucide-react';
+import { LayoutGrid, Menu, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
@@ -49,10 +50,24 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
   const page = usePage<SharedData>();
   const { auth } = page.props;
   const user = auth?.user;
-  // Hide nav items that require authentication when user is not logged in
-  const navItems = user
-    ? mainNavItems
-    : mainNavItems.filter((item) => item.title !== 'Dashboard');
+
+  // Build nav items based on user role
+  let navItems = mainNavItems;
+
+  if (!user) {
+    // Hide auth-required items when not logged in
+    navItems = mainNavItems.filter((item) => item.title !== 'Dashboard');
+  } else if (user.role === 'admin') {
+    // Add admin items for admin users
+    navItems = [
+      ...mainNavItems,
+      {
+        title: 'Users',
+        href: users(),
+        icon: Users,
+      },
+    ];
+  }
   const getInitials = useInitials();
   return (
     <>

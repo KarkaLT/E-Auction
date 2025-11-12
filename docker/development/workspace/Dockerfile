@@ -6,6 +6,9 @@ ARG UID=1000
 ARG GID=1000
 ARG NODE_VERSION=22.13.1
 
+# Non-interactive timezone setup
+ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Vilnius
+
 # Install system dependencies and build libraries
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
@@ -19,6 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     git \
     sudo \
+    tzdata \
     && docker-php-ext-install -j$(nproc) \
     pdo_mysql \
     opcache \
@@ -30,6 +34,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-enable redis xdebug\
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Configure system timezone and PHP default timezone for CLI
+RUN ln -snf /usr/share/zoneinfo/Europe/Vilnius /etc/localtime && echo "Europe/Vilnius" > /etc/timezone \
+    && echo "date.timezone=Europe/Vilnius" > /usr/local/etc/php/conf.d/date_timezone.ini
 
 # Use ARG to define environment variables passed from the Docker build command or Docker Compose.
 ARG XDEBUG_ENABLED

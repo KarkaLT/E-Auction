@@ -1,6 +1,9 @@
 # Stage 1: Build environment and Composer dependencies
 FROM php:8.4-fpm AS builder
 
+# Non-interactive timezone setup for builds
+ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Vilnius
+
 # Install system dependencies and PHP extensions for Laravel with MySQL support.
 # Dependencies in this stage are only required for building the final image.
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -17,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    tzdata \
     && docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype \
     && docker-php-ext-install -j$(nproc) \
     pdo_mysql \
@@ -29,6 +33,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Ensure system timezone is set and PHP uses the correct timezone
+RUN ln -snf /usr/share/zoneinfo/Europe/Vilnius /etc/localtime && echo "Europe/Vilnius" > /etc/timezone
 
 # Set the working directory inside the container
 WORKDIR /var/www
@@ -62,7 +69,7 @@ FROM php:8.4-fpm AS production
 
 # Install only runtime libraries needed in production
 # libfcgi-bin and procps are required for the php-fpm-healthcheck script
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     libpq-dev \
     libicu-dev \
     libzip-dev \
@@ -70,6 +77,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    tzdata \
     libfcgi-bin \
     procps \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -99,6 +107,11 @@ COPY --from=builder /usr/local/bin/docker-php-ext-* /usr/local/bin/
 # security in a live environment.
 # -----------------------------------------------------------
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+# Configure system timezone and PHP date.timezone
+RUN ln -snf /usr/share/zoneinfo/Europe/Vilnius /etc/localtime \
+    && echo "Europe/Vilnius" > /etc/timezone \
+    && echo "date.timezone=Europe/Vilnius" > /usr/local/etc/php/conf.d/date_timezone.ini
 
 # Ensure upload limits persist in runtime image even if later steps modify conf.d
 COPY ./docker/common/php-fpm/uploads.ini /usr/local/etc/php/conf.d/uploads.ini

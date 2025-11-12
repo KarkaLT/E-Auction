@@ -35,6 +35,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  role?: string;
   avatar?: string;
   email_verified_at: string | null;
   two_factor_enabled?: boolean;
@@ -55,5 +56,6 @@ export interface AuctionItem {
   // Appended attributes from the backend model
   first_photo?: string | null;
   current_bid?: string;
+  winner?: User | null;
   [key: string]: unknown;
 }

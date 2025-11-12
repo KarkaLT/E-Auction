@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import VisuallyHidden from '@/components/ui/visually-hidden';
 import { useInitials } from '@/hooks/use-initials';
 import AppLayout from '@/layouts/app-layout';
+import { formatLocalDateTime } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -45,6 +46,7 @@ interface AuctionItem {
   end_time: string;
   status: string;
   seller?: { id: number; name: string };
+  winner?: { id: number; name: string } | null;
   photos?: AuctionItemPhoto[];
   comments?: AuctionItemComment[];
 }
@@ -90,16 +92,7 @@ export default function AuctionShow() {
   // Logged in check
   const isLoggedIn = Boolean(auth?.user);
 
-  const formattedEndTime = new Date(auctionItem.end_time).toLocaleDateString(
-    'en-US',
-    {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    },
-  );
+  const formattedEndTime = formatLocalDateTime(auctionItem.end_time);
 
   const getInitials = useInitials();
 
@@ -198,119 +191,167 @@ export default function AuctionShow() {
             </CardContent>
           </Card>
 
-          {/* Bid Increment Card */}
+          {/* Bid Increment Card (or Winner when auction ended) */}
           <Card className="border-0 bg-muted/50">
             <CardContent className="flex flex-col items-center justify-center space-y-4 p-6 text-center">
-              <div className="w-full">
-                <p className="mb-2 text-sm text-muted-foreground">Your Bid</p>
-
-                <div className="flex items-center justify-center space-x-3">
-                  <Button
-                    type="button"
-                    className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border bg-white text-lg shadow-sm disabled:opacity-50"
-                    onClick={() => {
-                      setBidAmount((prev) => {
-                        const next = parseFloat(
-                          (prev - parsedBidIncrement).toFixed(2),
-                        );
-                        return next >= minBid ? next : minBid;
-                      });
-                    }}
-                    disabled={bidAmount <= minBid + Number.EPSILON}
-                    aria-label="Decrease bid"
-                  >
-                    −
-                  </Button>
-
-                  <Input
-                    type="number"
-                    className="h-10 w-36 rounded-md border bg-muted/10 px-3 py-2 text-center text-lg text-white"
-                    value={bidAmount}
-                    readOnly
-                    aria-label="Bid amount"
-                  />
-
-                  <Button
-                    type="button"
-                    className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border bg-white text-lg shadow-sm"
-                    onClick={() => {
-                      setBidAmount((prev) =>
-                        parseFloat((prev + parsedBidIncrement).toFixed(2)),
-                      );
-                    }}
-                    aria-label="Increase bid"
-                  >
-                    +
-                  </Button>
+              {auctionItem.status !== 'active' ? (
+                <div className="w-full">
+                  {auctionItem.winner ? (
+                    <>
+                      <p className="mb-2 text-sm text-muted-foreground">
+                        Winner
+                      </p>
+                      <div className="flex items-center justify-center space-x-4">
+                        <Avatar className="size-12">
+                          <AvatarImage
+                            src={`https://api.dicebear.com/7.x/initials/svg?seed=${auctionItem.winner.name}`}
+                          />
+                          <AvatarFallback className="text-lg font-semibold">
+                            {getInitials(auctionItem.winner.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="text-left">
+                          <p className="text-lg font-semibold">
+                            {auctionItem.winner.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Final price: $
+                            {parseFloat(currentPrice).toLocaleString('en-US', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="mt-5 text-center">
+                      <p className="text-lg font-semibold">No winner</p>
+                      <p className="text-sm text-muted-foreground">
+                        Final price: $
+                        {parseFloat(currentPrice).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                  )}
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    Auction ended. {formattedEndTime}
+                  </p>
                 </div>
+              ) : (
+                <div className="w-full">
+                  <p className="mb-2 text-sm text-muted-foreground">Your Bid</p>
 
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Minimum bid: $
-                  {parseFloat(minBid.toFixed(2)).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Increment: ${parsedBidIncrement.toFixed(2)}
-                </p>
-                <div className="mt-4 flex flex-col items-center">
-                  <Button
-                    type="button"
-                    className="w-44 cursor-pointer select-none"
-                    onClick={() => {
-                      const placeBid = async () => {
-                        try {
-                          setPlacingBid(true);
-
-                          const token = document
-                            .querySelector('meta[name="csrf-token"]')
-                            ?.getAttribute('content');
-
-                          const res = await fetch(
-                            `/auction-items/${auctionItem.id}/bid`,
-                            {
-                              method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json',
-                                Accept: 'application/json',
-                                'X-CSRF-TOKEN': token ?? '',
-                              },
-                              credentials: 'same-origin',
-                              body: JSON.stringify({
-                                bid_amount: bidAmount,
-                              }),
-                            },
+                  <div className="flex items-center justify-center space-x-3">
+                    <Button
+                      type="button"
+                      className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border bg-white text-lg shadow-sm disabled:opacity-50"
+                      onClick={() => {
+                        setBidAmount((prev) => {
+                          const next = parseFloat(
+                            (prev - parsedBidIncrement).toFixed(2),
                           );
+                          return next >= minBid ? next : minBid;
+                        });
+                      }}
+                      disabled={bidAmount <= minBid + Number.EPSILON}
+                      aria-label="Decrease bid"
+                    >
+                      −
+                    </Button>
 
-                          if (!res.ok) {
-                            const body = await res.json().catch(() => ({}));
-                            // TODO: show nicer UI error; for now log and return
-                            console.error('Bid failed', body);
-                            return;
+                    <Input
+                      type="number"
+                      className="h-10 w-36 rounded-md border bg-muted/10 px-3 py-2 text-center text-lg text-white"
+                      value={bidAmount}
+                      readOnly
+                      aria-label="Bid amount"
+                    />
+
+                    <Button
+                      type="button"
+                      className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border bg-white text-lg shadow-sm"
+                      onClick={() => {
+                        setBidAmount((prev) =>
+                          parseFloat((prev + parsedBidIncrement).toFixed(2)),
+                        );
+                      }}
+                      aria-label="Increase bid"
+                    >
+                      +
+                    </Button>
+                  </div>
+
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    Minimum bid: $
+                    {parseFloat(minBid.toFixed(2)).toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Increment: ${parsedBidIncrement.toFixed(2)}
+                  </p>
+                  <div className="mt-4 flex flex-col items-center">
+                    <Button
+                      type="button"
+                      className="w-44 cursor-pointer select-none"
+                      onClick={() => {
+                        const placeBid = async () => {
+                          try {
+                            setPlacingBid(true);
+
+                            const token = document
+                              .querySelector('meta[name="csrf-token"]')
+                              ?.getAttribute('content');
+
+                            const res = await fetch(
+                              `/auction-items/${auctionItem.id}/bid`,
+                              {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  Accept: 'application/json',
+                                  'X-CSRF-TOKEN': token ?? '',
+                                },
+                                credentials: 'same-origin',
+                                body: JSON.stringify({
+                                  bid_amount: bidAmount,
+                                }),
+                              },
+                            );
+
+                            if (!res.ok) {
+                              const body = await res.json().catch(() => ({}));
+                              // TODO: show nicer UI error; for now log and return
+                              console.error('Bid failed', body);
+                              return;
+                            }
+
+                            // Refresh the page so Inertia fetches updated auctionItem props
+                            router.reload();
+                          } finally {
+                            setPlacingBid(false);
                           }
+                        };
 
-                          // Refresh the page so Inertia fetches updated auctionItem props
-                          router.reload();
-                        } finally {
-                          setPlacingBid(false);
-                        }
-                      };
-
-                      placeBid();
-                    }}
-                    disabled={placingBid || isSeller || !isLoggedIn}
-                  >
-                    {!isLoggedIn
-                      ? 'You need to be logged in'
-                      : isSeller
-                        ? 'Cannot bid on your item'
-                        : placingBid
-                          ? 'Placing…'
-                          : 'Place bid'}
-                  </Button>
+                        placeBid();
+                      }}
+                      disabled={placingBid || isSeller || !isLoggedIn}
+                    >
+                      {!isLoggedIn
+                        ? 'You need to be logged in'
+                        : isSeller
+                          ? 'Cannot bid on your item'
+                          : placingBid
+                            ? 'Placing…'
+                            : 'Place bid'}
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -439,7 +480,7 @@ export default function AuctionShow() {
                           </p>
                           {c.created_at && (
                             <p className="text-xs text-muted-foreground">
-                              {new Date(c.created_at).toLocaleString()}
+                              {formatLocalDateTime(c.created_at)}
                             </p>
                           )}
                         </div>

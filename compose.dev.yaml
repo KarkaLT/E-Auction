@@ -11,6 +11,7 @@ services:
       - '${NGINX_PORT:-80}:80'
     environment:
       - NGINX_HOST=localhost
+      - TZ=Europe/Vilnius
     networks:
       - laravel-development
     depends_on:
@@ -35,6 +36,8 @@ services:
     env_file:
       # Load the environment variables from the Laravel application
       - .env
+    environment:
+      - TZ=Europe/Vilnius
     user: '${UID:-1000}:${GID:-1000}'
     volumes:
       # Mount the application code for live updates
@@ -44,6 +47,29 @@ services:
     depends_on:
       mysql:
         condition: service_started # Wait for mysql to start
+
+  scheduler:
+    # Dedicated container for Laravel scheduler
+    build:
+      context: .
+      dockerfile: ./docker/common/php-fpm/Dockerfile
+      target: development
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/Vilnius
+    user: '${UID:-1000}:${GID:-1000}'
+    volumes:
+      - ./:/var/www
+    networks:
+      - laravel-development
+    depends_on:
+      php-fpm:
+        condition: service_started
+    command: php artisan schedule:work
 
   workspace:
     # For the workspace service, we will also create a custom image to install and setup all the necessary stuff.
@@ -63,6 +89,8 @@ services:
     stdin_open: true # Keeps standard input open for 'docker exec'
     env_file:
       - .env
+    environment:
+      - TZ=Europe/Vilnius
     ports:
       - '${VITE_PORT:-5173}:5173'
     volumes:
@@ -79,6 +107,7 @@ services:
       - MYSQL_USER=${DB_USERNAME:-laravel}
       - MYSQL_PASSWORD=${DB_PASSWORD:-secret}
       - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-root}
+      - TZ=Europe/Vilnius
     volumes:
       - mysql-data-development:/var/lib/mysql
     networks:
@@ -86,6 +115,8 @@ services:
 
   redis:
     image: redis:alpine
+    environment:
+      - TZ=Europe/Vilnius
     networks:
       - laravel-development
 

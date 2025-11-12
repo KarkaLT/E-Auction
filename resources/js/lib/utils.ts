@@ -53,3 +53,58 @@ export function formatEndTime(endTime: string | Date): string {
   // Otherwise show a concise date (e.g. "Nov 25, 2025")
   return end.toLocaleDateString();
 }
+
+/**
+ * Convert a UTC ISO string from the backend to a local datetime string
+ * suitable for datetime-local inputs (YYYY-MM-DDTHH:mm format)
+ */
+export function utcToLocalDatetimeInput(utcString: string): string {
+  const date = new Date(utcString);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  // Format as YYYY-MM-DDTHH:mm in local timezone
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+/**
+ * Convert a local datetime string from datetime-local input to UTC ISO string
+ * for sending to the backend
+ */
+export function localDatetimeInputToUtc(localString: string): string {
+  if (!localString) return '';
+
+  // datetime-local gives us a string like "2025-11-15T14:30"
+  // which JavaScript interprets as local time
+  const date = new Date(localString);
+  if (Number.isNaN(date.getTime())) {
+    return localString; // fallback to original if invalid
+  }
+
+  return date.toISOString();
+}
+
+/**
+ * Format a UTC date string to a readable local date and time
+ */
+export function formatLocalDateTime(utcString: string | Date): string {
+  const date = utcString instanceof Date ? utcString : new Date(utcString);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}

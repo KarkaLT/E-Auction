@@ -110,7 +110,7 @@ class AuctionItemController extends Controller
     public function show(Request $request, AuctionItem $auctionItem)
     {
         $this->authorize('view', $auctionItem); // optional if policy exists
-        $auctionItem->load(['seller', 'photos', 'comments.user']);
+        $auctionItem->load(['seller', 'photos', 'comments.user', 'winner']);
 
         // Decide whether to render the page within the AppLayout.
         // If the user navigated from the dashboard (Referer header contains '/dashboard'),

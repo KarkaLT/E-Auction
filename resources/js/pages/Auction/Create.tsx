@@ -8,11 +8,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
+import { localDatetimeInputToUtc } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import auctionItems from '@/routes/auction-items';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { UploadIcon, X } from 'lucide-react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Dashboard', href: dashboard().url },
@@ -29,15 +31,26 @@ export default function CreateAuction() {
     end_time: '',
   });
 
+  // Store the local datetime-local value for the input
+  const [localEndTime, setLocalEndTime] = useState('');
+
   const photoError =
     errors.photos ??
     Object.entries(errors).find(([key]) => key.startsWith('photos.'))?.[1];
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Convert local time to UTC before submitting
+    const utcEndTime = localDatetimeInputToUtc(localEndTime);
+    setData('end_time', utcEndTime);
+
     post(auctionItems.store().url, {
       forceFormData: true,
-      onSuccess: () => reset(),
+      onSuccess: () => {
+        reset();
+        setLocalEndTime('');
+      },
     });
   };
 
@@ -173,8 +186,8 @@ export default function CreateAuction() {
               <Input
                 id="end_time"
                 type="datetime-local"
-                value={data.end_time}
-                onChange={(e) => setData('end_time', e.target.value)}
+                value={localEndTime}
+                onChange={(e) => setLocalEndTime(e.target.value)}
                 required
               />
               <div className="min-h-5">

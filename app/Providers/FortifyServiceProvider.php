@@ -4,11 +4,14 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
@@ -40,6 +43,27 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        // Prevent blocked users from logging in
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = User::where(Fortify::username(), $request->input(Fortify::username()))->first();
+            if (! $user) {
+                return null;
+            }
+
+            if (! Hash::check($request->string('password'), $user->password)) {
+                return null;
+            }
+
+            // If credentials are correct but the account is blocked, raise a clear error
+            if ((bool) ($user->blocked ?? false)) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => __('Your account is blocked. Please contact support.'),
+                ]);
+            }
+
+            return $user;
+        });
     }
 
     /**

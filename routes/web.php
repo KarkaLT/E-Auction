@@ -23,7 +23,7 @@ Route::get('/', function () {
 // Important: Register the authenticated resource routes BEFORE the public "show" route.
 // Otherwise, the "/auction-items/{auction_item}" route can shadow "/auction-items/create"
 // and cause a 404 by attempting to resolve "create" as a model id.
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'not-blocked'])->group(function () {
     Route::get('dashboard', function () {
         $user = Auth::user();
 
@@ -37,7 +37,7 @@ Route::middleware(['auth'])->group(function () {
         // Recent auctions the user has won
         $wonAuctions = AuctionItem::where('winner_id', $user->id)
             ->with('photos')
-            ->where('status', 'ended')
+            ->where('status', 'sold')
             ->whereNotNull('winner_id')
             ->orderByDesc('end_time')
             ->take(5)
@@ -56,7 +56,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('auction-items/{auction_item}/comments', [\App\Http\Controllers\AuctionItemCommentController::class, 'store'])->name('auction-items.comments.store');
 });
 
-// Publicly viewable auction routes (index & show)
+// Admin routes
+Route::middleware(['auth', 'not-blocked', 'admin'])->group(function () {
+    Route::get('admin/users', [\App\Http\Controllers\AdminController::class, 'users'])->name('admin.users');
+    Route::post('admin/users/{user}/block', [\App\Http\Controllers\AdminController::class, 'block'])->name('admin.users.block');
+    Route::post('admin/users/{user}/unblock', [\App\Http\Controllers\AdminController::class, 'unblock'])->name('admin.users.unblock');
+}); // Publicly viewable auction routes (index & show)
 Route::resource('auction-items', AuctionItemController::class)->only(['index', 'show']);
 
 require __DIR__.'/settings.php';
