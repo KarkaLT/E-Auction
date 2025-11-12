@@ -31,6 +31,7 @@ class AuctionItemController extends Controller
         }
 
         $auctionItems = $user->auctionItems()->latest()->paginate(10);
+
         return Inertia::render('Auction/Index', [
             'auctionItems' => $auctionItems,
         ]);
@@ -94,7 +95,8 @@ class AuctionItemController extends Controller
     public function show(AuctionItem $auctionItem)
     {
         $this->authorize('view', $auctionItem); // optional if policy exists
-        $auctionItem->load(['seller']);
+        $auctionItem->load(['seller', 'photos']);
+
         return Inertia::render('Auction/Show', [
             'auctionItem' => $auctionItem,
         ]);

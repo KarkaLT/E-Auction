@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Actions\AuctionItems\StoreAuctionItemPhotos;
-use App\Models\AuctionItemPhoto;
 use App\Models\AuctionItem;
+use App\Models\AuctionItemPhoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
@@ -46,7 +46,9 @@ class AuctionItemPhotoController extends Controller
         $auctionItem = $photo->auctionItem;
         $this->authorize('update', $auctionItem);
 
-        Storage::disk('public')->delete($photo->file_path);
+        // Use the original stored path for deletion (avoid deleting by absolute URL)
+        $storedPath = $photo->getOriginal('file_path') ?? $photo->file_path;
+        Storage::disk('public')->delete($storedPath);
         $photo->delete();
 
         return back()->with('success', 'Photo deleted successfully.');

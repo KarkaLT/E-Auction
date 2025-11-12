@@ -13,19 +13,18 @@ npm -v || true
 mkdir -p /var/www/storage/logs
 
 # Install dependencies if node_modules is missing or incompatible
-if [ ! -d "/var/www/node_modules" ]; then
-  echo "node_modules not found. Installing dependencies..."
-  cd /var/www
-  if [ -f package-lock.json ]; then
-    npm ci || { echo "npm ci failed, falling back to npm i"; npm i; }
-  else
-    npm i
-  fi
+
+echo "Installing dependencies..."
+cd /var/www
+if [ -f package-lock.json ]; then
+  npm ci || { echo "npm ci failed, falling back to npm i"; npm i; }
+else
+  npm i
 fi
 
 # Start Vite dev server in the background
 echo "Starting Vite dev server..."
-cd /var/www
+
 # Start Vite dev server in the foreground so logs go to container stdout/stderr.
 # Running in foreground is preferred in containers so the process receives signals correctly
 # and logs are captured by Docker (no nohup or backgrounding).
