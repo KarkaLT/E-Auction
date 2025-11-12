@@ -1,6 +1,5 @@
 import AuctionPreview from '@/components/auction-preview';
 import { buttonVariants } from '@/components/ui/button';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import auctionItems from '@/routes/auction-items'; // changed import
@@ -23,13 +22,23 @@ interface DashboardPageProps {
     end_time: string;
     status: string;
   }>;
+  wonAuctions?: Array<{
+    id: number;
+    title: string;
+    starting_price: string;
+    current_price?: string | null;
+    end_time: string;
+    status: string;
+  }>;
 }
 
 export default function Dashboard() {
   const { props } = usePage<{
     auctionItems?: DashboardPageProps['auctionItems'];
+    wonAuctions?: DashboardPageProps['wonAuctions'];
   }>();
   const auctionItemsList = props.auctionItems ?? [];
+  const wonAuctionsList = props.wonAuctions ?? [];
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -52,13 +61,22 @@ export default function Dashboard() {
         {auctionItemsList.length > 0 && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {auctionItemsList.map((item) => (
-              <AuctionPreview item={item} />
+              <AuctionPreview key={item.id} item={item} />
             ))}
           </div>
         )}
-        <div className="relative mt-8 min-h-[40vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-          <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-        </div>
+        {wonAuctionsList.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-4 text-2xl font-semibold">
+              Recently Won Auctions
+            </h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {wonAuctionsList.map((item) => (
+                <AuctionPreview key={`won-${item.id}`} item={item} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </AppLayout>
   );

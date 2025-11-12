@@ -25,10 +25,27 @@ Route::get('/', function () {
 // and cause a 404 by attempting to resolve "create" as a model id.
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
-        $auctionItems = Auth::user()->auctionItems()->latest()->take(5)->get();
+        $user = Auth::user();
+
+        if (! $user instanceof \App\Models\User) {
+            abort(500, 'Authenticated user type mismatch.');
+        }
+
+        // Recent auctions created by the user
+        $auctionItems = $user->auctionItems()->latest()->take(5)->get();
+
+        // Recent auctions the user has won
+        $wonAuctions = AuctionItem::where('winner_id', $user->id)
+            ->with('photos')
+            ->where('status', 'ended')
+            ->whereNotNull('winner_id')
+            ->orderByDesc('end_time')
+            ->take(5)
+            ->get();
 
         return Inertia::render('dashboard', [
             'auctionItems' => $auctionItems,
+            'wonAuctions' => $wonAuctions,
         ]);
     })->name('dashboard');
 
