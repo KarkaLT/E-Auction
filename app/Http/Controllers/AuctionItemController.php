@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\AuctionItems\StoreAuctionItemPhotos;
 use App\Models\AuctionItem;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -132,6 +133,70 @@ class AuctionItemController extends Controller
         $auctionItem->update($validated);
 
         return redirect()->route('auction-items.show', $auctionItem);
+    }
+
+    /**
+     * Place a bid on the auction item.
+     */
+    public function placeBid(Request $request, AuctionItem $auctionItem)
+    {
+        $user = Auth::user();
+
+        abort_if($user === null, 401);
+
+        // Basic validation
+        $validated = $request->validate([
+            'bid_amount' => 'required|numeric|min:0',
+        ]);
+
+        // Business rules
+        if ($auctionItem->seller_id === $user->id) {
+            return response()->json(['message' => 'Sellers cannot bid on their own items.'], 403);
+        }
+
+        if ($auctionItem->status !== 'active') {
+            return response()->json(['message' => 'This auction is not active.'], 422);
+        }
+
+        if (Carbon::now()->greaterThanOrEqualTo($auctionItem->end_time)) {
+            return response()->json(['message' => 'This auction has already ended.'], 422);
+        }
+
+        $currentPrice = $auctionItem->current_price ?? $auctionItem->starting_price;
+        $minBid = (float) $currentPrice + (float) $auctionItem->bid_increment;
+
+        $bidAmount = (float) $validated['bid_amount'];
+
+        if ($bidAmount < $minBid) {
+            return response()->json(['message' => 'Bid must be at least the minimum bid.', 'min_bid' => $minBid], 422);
+        }
+
+        try {
+            DB::transaction(function () use ($auctionItem, $bidAmount, $user) {
+                // refresh to avoid races
+                $auctionItem->refresh();
+
+                // Recalculate current price and min bid to be safe
+                $currentPrice = $auctionItem->current_price ?? $auctionItem->starting_price;
+                $minBid = (float) $currentPrice + (float) $auctionItem->bid_increment;
+
+                if ($bidAmount < $minBid) {
+                    throw new \RuntimeException('Bid too low.');
+                }
+
+                $auctionItem->current_price = $bidAmount;
+                $auctionItem->winner_id = $user->id;
+                $auctionItem->save();
+            });
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json(['message' => 'Could not place bid. Please try again.'], 500);
+        }
+
+        $auctionItem->load(['seller']);
+
+        return response()->json(['auctionItem' => $auctionItem]);
     }
 
     /**

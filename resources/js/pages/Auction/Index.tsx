@@ -1,7 +1,7 @@
+import { buttonVariants } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { buttonVariants } from '@/components/ui/button';
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'My Auctions', href: '/auction-items' },
@@ -32,10 +32,15 @@ export default function AuctionIndex() {
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="My Auctions" />
-      <div className="p-4 space-y-6">
+      <div className="space-y-6 p-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">My Auctions</h1>
-          <Link href="/auction-items/create" className={buttonVariants({ variant: 'default' })}>Create Auction</Link>
+          <Link
+            href="/auction-items/create"
+            className={buttonVariants({ variant: 'default' })}
+          >
+            Create Auction
+          </Link>
         </div>
         {auctionItems.data.length === 0 && (
           <div className="rounded border border-dashed p-6 text-center text-sm text-muted-foreground">
@@ -44,20 +49,26 @@ export default function AuctionIndex() {
         )}
         {auctionItems.data.length > 0 && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {auctionItems.data.map(item => (
+            {auctionItems.data.map((item) => (
               <Link
                 key={item.id}
                 href={`/auction-items/${item.id}`}
                 className="group rounded-lg border bg-card p-4 shadow-sm transition hover:shadow-md"
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <h3 className="text-base font-medium group-hover:text-primary line-clamp-1">{item.title}</h3>
-                  <span className="rounded bg-secondary px-2 py-0.5 text-xs capitalize">{item.status}</span>
+                  <h3 className="line-clamp-1 text-base font-medium group-hover:text-primary">
+                    {item.title}
+                  </h3>
+                  <span className="rounded bg-secondary px-2 py-0.5 text-xs capitalize">
+                    {item.status}
+                  </span>
                 </div>
                 <div className="space-y-1 text-sm text-muted-foreground">
                   <p>Start: €{item.starting_price}</p>
                   <p>Current: €{item.current_price ?? item.starting_price}</p>
-                  <p className="text-xs">Ends: {new Date(item.end_time).toLocaleString()}</p>
+                  <p className="text-xs">
+                    Ends: {new Date(item.end_time).toLocaleString()}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -70,7 +81,7 @@ export default function AuctionIndex() {
               <Link
                 key={idx}
                 href={link.url || '#'}
-                className={`rounded px-3 py-1 text-sm border ${link.active ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+                className={`rounded border px-3 py-1 text-sm ${link.active ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
                 preserveScroll
               >
                 {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}

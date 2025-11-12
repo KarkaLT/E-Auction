@@ -13,7 +13,7 @@ import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface AuctionItemPhoto {
@@ -38,7 +38,7 @@ type PageProps = SharedData & { auctionItem: AuctionItem };
 
 export default function AuctionShow() {
   const { props } = usePage<PageProps>();
-  const { auctionItem } = props as PageProps;
+  const { auctionItem, auth } = props as PageProps;
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<AuctionItemPhoto | null>(
     null,
@@ -58,6 +58,10 @@ export default function AuctionShow() {
   const [bidAmount, setBidAmount] = useState<number>(() =>
     parseFloat(minBid.toFixed(2)),
   );
+  const [placingBid, setPlacingBid] = useState(false);
+
+  // Disable placing bid if the current authenticated user is the seller/creator
+  const isSeller = auth?.user?.id === auctionItem.seller?.id;
 
   const formattedEndTime = new Date(auctionItem.end_time).toLocaleDateString(
     'en-US',
@@ -239,15 +243,53 @@ export default function AuctionShow() {
                         type="button"
                         className="w-40 cursor-pointer select-none"
                         onClick={() => {
-                          // Intentionally do not call API yet. Local-only action for now.
+                          const placeBid = async () => {
+                            try {
+                              setPlacingBid(true);
 
-                          console.log(
-                            'Place bid clicked (local only):',
-                            bidAmount,
-                          );
+                              const token = document
+                                .querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute('content');
+
+                              const res = await fetch(
+                                `/auction-items/${auctionItem.id}/bid`,
+                                {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    Accept: 'application/json',
+                                    'X-CSRF-TOKEN': token ?? '',
+                                  },
+                                  credentials: 'same-origin',
+                                  body: JSON.stringify({
+                                    bid_amount: bidAmount,
+                                  }),
+                                },
+                              );
+
+                              if (!res.ok) {
+                                const body = await res.json().catch(() => ({}));
+                                // TODO: show nicer UI error; for now log and return
+                                console.error('Bid failed', body);
+                                return;
+                              }
+
+                              // Refresh the page so Inertia fetches updated auctionItem props
+                              router.reload();
+                            } finally {
+                              setPlacingBid(false);
+                            }
+                          };
+
+                          placeBid();
                         }}
+                        disabled={placingBid || isSeller}
                       >
-                        Place bid
+                        {isSeller
+                          ? 'Cannot bid on your item'
+                          : placingBid
+                            ? 'Placing…'
+                            : 'Place bid'}
                       </Button>
                     </div>
                   </div>
