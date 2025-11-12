@@ -1,10 +1,11 @@
+import AuctionPreview from '@/components/auction-preview';
 import { buttonVariants } from '@/components/ui/button';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import auctionItems from '@/routes/auction-items'; // changed import
 import { type BreadcrumbItem } from '@/types';
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -33,7 +34,7 @@ export default function Dashboard() {
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Dashboard" />
-      <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
+      <div className="mt-6 flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Your Recent Auctions</h2>
           <Link
@@ -51,54 +52,7 @@ export default function Dashboard() {
         {auctionItemsList.length > 0 && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {auctionItemsList.map((item) => (
-              <div
-                key={item.id}
-                className="group flex flex-col justify-between rounded-lg border bg-card p-4 shadow-sm transition hover:shadow-md"
-              >
-                <div>
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <Link
-                      href={auctionItems.show(item.id).url}
-                      className="line-clamp-1 flex-1 text-base font-medium group-hover:text-primary"
-                    >
-                      {item.title}
-                    </Link>
-                    <span className="rounded bg-secondary px-2 py-0.5 text-xs capitalize">
-                      {item.status}
-                    </span>
-                  </div>
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>Start: €{item.starting_price}</p>
-                    <p>Current: €{item.current_price ?? item.starting_price}</p>
-                    <p className="text-xs">
-                      Ends: {new Date(item.end_time).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                <Form
-                  method="post"
-                  action={
-                    auctionItems.destroy(item.id).url + '?from_dashboard=1'
-                  }
-                  data-test={`delete-auction-${item.id}`}
-                  className="mt-3 flex justify-end"
-                  onSubmit={(e) => {
-                    if (
-                      !confirm('Delete this auction? This cannot be undone.')
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
-                >
-                  <input type="hidden" name="_method" value="DELETE" />
-                  <button
-                    type="submit"
-                    className="text-xs text-red-600 hover:underline disabled:opacity-50"
-                  >
-                    Delete
-                  </button>
-                </Form>
-              </div>
+              <AuctionPreview item={item} />
             ))}
           </div>
         )}

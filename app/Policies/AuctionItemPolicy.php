@@ -4,23 +4,24 @@ namespace App\Policies;
 
 use App\Models\AuctionItem;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class AuctionItemPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
+        // Anyone (including guests) may view listings
         return true;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, AuctionItem $auctionItem): bool
+    public function view(?User $user, AuctionItem $auctionItem): bool
     {
+        // Allow viewing by any user or guest. Keep model-level restrictions here if needed later.
         return true;
     }
 
@@ -64,4 +65,3 @@ class AuctionItemPolicy
         return $user->id === $auctionItem->seller_id;
     }
 }
-

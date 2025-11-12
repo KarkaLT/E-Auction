@@ -16,7 +16,8 @@ class AuctionItemController extends Controller
 {
     public function __construct(private StoreAuctionItemPhotos $storeAuctionItemPhotos)
     {
-        $this->middleware('auth');
+        // Allow guests to view auction listings and individual auctions.
+        $this->middleware('auth')->except(['index', 'show']);
     }
 
     /**
@@ -26,11 +27,24 @@ class AuctionItemController extends Controller
     {
         $user = Auth::user();
 
-        abort_if($user === null, 401);
+        // If user is not authenticated, show a public listing of ongoing auctions
+        if ($user === null) {
+            $auctionItems = AuctionItem::where('status', 'active')
+                ->where('end_time', '>', now())
+                ->with('photos')
+                ->orderBy('end_time')
+                ->paginate(12);
+
+            return Inertia::render('Auction/Index', [
+                'auctionItems' => $auctionItems,
+            ]);
+        }
+
         if (! $user instanceof User) {
             abort(500, 'Authenticated user type mismatch.');
         }
 
+        // Authenticated: show user's own auctions
         $auctionItems = $user->auctionItems()->latest()->paginate(10);
 
         return Inertia::render('Auction/Index', [
@@ -93,13 +107,26 @@ class AuctionItemController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(AuctionItem $auctionItem)
+    public function show(Request $request, AuctionItem $auctionItem)
     {
         $this->authorize('view', $auctionItem); // optional if policy exists
-        $auctionItem->load(['seller', 'photos']);
+        $auctionItem->load(['seller', 'photos', 'comments.user']);
+
+        // Decide whether to render the page within the AppLayout.
+        // If the user navigated from the dashboard (Referer header contains '/dashboard'),
+        // render with AppLayout. If opened from the public home page, render without it.
+        $useAppLayout = false;
+        $referer = $request->headers->get('referer');
+        if (! empty($referer)) {
+            $path = parse_url($referer, PHP_URL_PATH) ?: '';
+            if (str_contains($path, '/dashboard')) {
+                $useAppLayout = true;
+            }
+        }
 
         return Inertia::render('Auction/Show', [
             'auctionItem' => $auctionItem,
+            'useAppLayout' => $useAppLayout,
         ]);
     }
 

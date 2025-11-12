@@ -27,6 +27,7 @@ export interface SharedData {
   quote: { message: string; author: string };
   auth: Auth;
   sidebarOpen: boolean;
+  auctions?: AuctionItem[];
   [key: string]: unknown;
 }
 
@@ -40,4 +41,19 @@ export interface User {
   created_at: string;
   updated_at: string;
   [key: string]: unknown; // This allows for additional properties...
+}
+
+export interface AuctionItem {
+  id: number;
+  title: string;
+  description?: string;
+  starting_price: string;
+  current_price?: string | null;
+  bid_increment?: string;
+  end_time: string;
+  status: 'active' | 'finished' | 'sold' | 'canceled' | string;
+  // Appended attributes from the backend model
+  first_photo?: string | null;
+  current_bid?: string;
+  [key: string]: unknown;
 }
