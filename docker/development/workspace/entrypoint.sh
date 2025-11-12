@@ -26,7 +26,7 @@ fi
 # Start Vite dev server in the background
 echo "Starting Vite dev server..."
 cd /var/www
-nohup npm run dev > /dev/stdout 2>/dev/stderr &
-
-# Keep container running
-exec bash
+# Start Vite dev server in the foreground so logs go to container stdout/stderr.
+# Running in foreground is preferred in containers so the process receives signals correctly
+# and logs are captured by Docker (no nohup or backgrounding).
+exec npm run dev

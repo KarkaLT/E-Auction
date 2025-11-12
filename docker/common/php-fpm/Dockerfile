@@ -50,6 +50,9 @@ WORKDIR /var/www
 # -----------------------------------------------------------
 COPY . /var/www
 
+# Apply custom PHP upload limits so large form submissions succeed during builds
+COPY ./docker/common/php-fpm/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+
 # Install Composer and dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
@@ -96,6 +99,9 @@ COPY --from=builder /usr/local/bin/docker-php-ext-* /usr/local/bin/
 # security in a live environment.
 # -----------------------------------------------------------
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+# Ensure upload limits persist in runtime image even if later steps modify conf.d
+COPY ./docker/common/php-fpm/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 # Configure PHP-FPM to listen on all interfaces and enable status page
 RUN sed -i 's/listen = 127.0.0.1:9000/listen = 9000/' /usr/local/etc/php-fpm.d/www.conf \
