@@ -120,6 +120,16 @@ services:
     networks:
       - laravel-development
 
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - '${MAILPIT_DASHBOARD_PORT:-8025}:8025' # Web UI
+      - '${MAILPIT_SMTP_PORT:-1025}:1025' # SMTP server
+    environment:
+      - TZ=Europe/Vilnius
+    networks:
+      - laravel-development
+
 networks:
   laravel-development:
 
