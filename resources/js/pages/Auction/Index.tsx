@@ -1,5 +1,6 @@
 import AuctionPreview from '@/components/auction-preview';
 import { buttonVariants } from '@/components/ui/button';
+import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
@@ -29,31 +30,33 @@ export default function AuctionIndex() {
   const isAuthenticated = Boolean((auth as { user?: unknown })?.user);
   const breadcrumbs: BreadcrumbItem[] = [
     {
-      title: isAuthenticated ? 'My Auctions' : 'Auctions',
+      title: isAuthenticated ? t('common.myAuctions') : t('common.auctions'),
       href: '/auction-items',
     },
   ];
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title={isAuthenticated ? 'My Auctions' : 'Auctions'} />
+      <Head
+        title={isAuthenticated ? t('common.myAuctions') : t('common.auctions')}
+      />
       <div className="space-y-6 p-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">
-            {isAuthenticated ? 'My Auctions' : 'Auctions'}
+            {isAuthenticated ? t('common.myAuctions') : t('common.auctions')}
           </h1>
           {isAuthenticated && (
             <Link
               href="/auction-items/create"
               className={buttonVariants({ variant: 'default' })}
             >
-              Create Auction
+              {t('auction.createAuction')}
             </Link>
           )}
         </div>
         {auctionItems.data.length === 0 && (
           <div className="rounded border border-dashed p-6 text-center text-sm text-muted-foreground">
-            You have not created any auctions yet.
+            {t('auction.noAuctionsYet')}
           </div>
         )}
         {auctionItems.data.length > 0 && (

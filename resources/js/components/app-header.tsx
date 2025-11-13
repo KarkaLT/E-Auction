@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/sheet';
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
+import { t } from '@/i18n';
 import { cn, isSameUrl } from '@/lib/utils';
 import { dashboard, home, login } from '@/routes';
 import { users } from '@/routes/admin';
@@ -33,7 +34,7 @@ import AppLogoIcon from './app-logo-icon';
 
 const mainNavItems: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: t('common.dashboard'),
     href: dashboard(),
     icon: LayoutGrid,
   },
@@ -56,13 +57,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
   if (!user) {
     // Hide auth-required items when not logged in
-    navItems = mainNavItems.filter((item) => item.title !== 'Dashboard');
+    navItems = [];
   } else if (user.role === 'admin') {
     // Add admin items for admin users
     navItems = [
       ...mainNavItems,
       {
-        title: 'Users',
+        title: t('admin.users'),
         href: users(),
         icon: Users,
       },
@@ -89,7 +90,9 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                 side="left"
                 className="flex h-full w-64 flex-col items-stretch justify-between bg-sidebar"
               >
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <SheetTitle className="sr-only">
+                  {t('common.settings')}
+                </SheetTitle>
                 <SheetHeader className="flex justify-start text-left">
                   <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
                 </SheetHeader>
@@ -183,7 +186,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
             ) : (
               <Link href={login()} className="ml-2">
                 <Button variant="ghost" size="sm">
-                  Sign in
+                  {t('common.login')}
                 </Button>
               </Link>
             )}

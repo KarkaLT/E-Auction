@@ -235,10 +235,6 @@ class AuctionItemController extends Controller
 
         $auctionItem->delete();
 
-        if (request()->boolean('from_dashboard')) {
-            return redirect()->route('dashboard');
-        }
-
         return redirect()->route('auction-items.index');
     }
 }

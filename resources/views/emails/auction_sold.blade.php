@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lt">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auction Item Sold</title>
+    <title>Aukciono daiktas parduotas</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
@@ -34,26 +34,26 @@
 
 <body>
     <div class="container">
-        <h2>Good news — your item was sold!</h2>
+        <h2>Gera žinia — jūsų daiktas parduotas!</h2>
 
-        <p>Hi {{ optional($auction->seller)->name ?? 'Seller' }},</p>
-        <p>Your auction <strong>“{{ $auction->title }}”</strong> has ended and was sold to {{ optional($auction->winner)->name ?? 'a buyer' }}.</p>
+        <p>Sveiki, {{ optional($auction->seller)->name ?? 'Pardavėjau' }},</p>
+        <p>Jūsų aukcionas <strong>„{{ $auction->title }}"</strong> baigėsi ir buvo parduotas {{ optional($auction->winner)->name ?? 'pirkėjui' }}.</p>
 
         @php
         $price = $auction->current_price ?? $auction->starting_price;
         $priceFormatted = number_format((float) $price, 2);
         @endphp
-        <p><strong>Final price:</strong> {{ $priceFormatted }}</p>
+        <p><strong>Galutinė kaina:</strong> {{ $priceFormatted }} €</p>
 
         @if($auction->winner && $auction->winner->email)
-        <p><strong>Buyer email:</strong> {{ $auction->winner->email }}</p>
+        <p><strong>Pirkėjo el. paštas:</strong> {{ $auction->winner->email }}</p>
         @endif
 
-        <p class="muted">Auction ID: #{{ $auction->id }} · Ended at: {{ $auction->end_time?->format('Y-m-d H:i') }}</p>
+        <p class="muted">Aukciono ID: #{{ $auction->id }} · Pasibaigė: {{ $auction->end_time?->format('Y-m-d H:i') }}</p>
 
-        <p>Next, coordinate delivery and payment with the buyer. If your platform supports it, you can manage fulfillment in your dashboard.</p>
+        <p>Toliau koordinuokite pristatymą ir mokėjimą su pirkėju. Jei jūsų platforma tai palaiko, galite valdyti užsakymo vykdymą savo skydelyje.</p>
 
-        <p>Thanks for using E‑Auction!</p>
+        <p>Dėkojame, kad naudojate E‑Auction!</p>
     </div>
 </body>
 

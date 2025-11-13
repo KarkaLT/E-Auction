@@ -1,4 +1,5 @@
 import AuctionPreview from '@/components/auction-preview';
+import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { type AuctionItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
@@ -21,7 +22,7 @@ export default function Home() {
       {auctionsList.length > 0 && (
         <div className="mt-8 w-full">
           <h2 className="mb-4 text-3xl font-semibold text-white">
-            Ongoing auctions
+            {t('auction.ongoingAuctions')}
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {auctionsList.map((item) => (

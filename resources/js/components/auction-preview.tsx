@@ -5,6 +5,7 @@ import {
   CardFooter,
   CardHeader,
 } from '@/components/ui/card';
+import { t } from '@/i18n';
 import { formatEndTime } from '@/lib/utils';
 import { type AuctionItem } from '@/types';
 import { Link } from '@inertiajs/react';
@@ -58,13 +59,13 @@ export default function AuctionPreview({
       </CardHeader>
 
       <CardContent className="flex flex-row items-center space-y-1 text-sm text-muted-foreground">
-        <span>Current bid:</span>
+        <span>{t('auction.currentBid')}:</span>
         <div className="flex-1" />
         <span>{priceDisplay}€</span>
       </CardContent>
 
       <CardFooter className="text-xs">
-        Ends: {formatEndTime(item.end_time)}
+        {t('auction.ends')}: {formatEndTime(item.end_time)}
       </CardFooter>
     </Card>
   );

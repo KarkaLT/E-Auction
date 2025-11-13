@@ -1,5 +1,6 @@
 import AuctionPreview from '@/components/auction-preview';
 import { buttonVariants } from '@/components/ui/button';
+import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import auctionItems from '@/routes/auction-items'; // changed import
@@ -8,7 +9,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Dashboard',
+    title: t('common.dashboard'),
     href: dashboard().url,
   },
 ];
@@ -42,20 +43,22 @@ export default function Dashboard() {
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Dashboard" />
+      <Head title={t('common.dashboard')} />
       <div className="mt-6 flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Your Recent Auctions</h2>
+          <h2 className="text-xl font-semibold">
+            {t('auction.yourRecentAuctions')}
+          </h2>
           <Link
             href={auctionItems.create().url}
             className={buttonVariants({ variant: 'default' })}
           >
-            Create Auction
+            {t('auction.createAuction')}
           </Link>
         </div>
         {auctionItemsList.length === 0 && (
           <div className="rounded border border-dashed p-6 text-center text-sm text-muted-foreground">
-            You have not created any auctions yet.
+            {t('auction.noAuctionsYet')}
           </div>
         )}
         {auctionItemsList.length > 0 && (
@@ -68,7 +71,7 @@ export default function Dashboard() {
         {wonAuctionsList.length > 0 && (
           <div className="mt-8">
             <h2 className="mb-4 text-2xl font-semibold">
-              Recently Won Auctions
+              {t('auction.recentlyWonAuctions')}
             </h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {wonAuctionsList.map((item) => (

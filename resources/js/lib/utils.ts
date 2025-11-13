@@ -33,25 +33,30 @@ export function formatEndTime(endTime: string | Date): string {
   }
 
   if (diff <= 0) {
-    return 'Ended';
+    return 'Pasibaigė';
   }
 
-  const oneHour = 1000 * 60 * 60;
+  const oneMinute = 1000 * 60;
+  const oneHour = oneMinute * 60;
   const oneDay = oneHour * 24;
   const oneWeek = oneDay * 7;
+  if (diff <= oneHour) {
+    const minutes = Math.ceil(diff / oneMinute);
+    return minutes === 1 ? 'Liko 1 minutė' : `Liko ${minutes} min.`;
+  }
 
   if (diff <= oneDay) {
     const hours = Math.ceil(diff / oneHour);
-    return hours === 1 ? '1 hour left' : `${hours} hours left`;
+    return hours === 1 ? 'Liko 1 valanda' : `Liko ${hours} val.`;
   }
 
   if (diff < oneWeek) {
     const days = Math.ceil(diff / oneDay);
-    return days === 1 ? '1 day left' : `${days} days left`;
+    return days === 1 ? 'Liko 1 diena' : `Liko ${days} d.`;
   }
 
   // Otherwise show a concise date (e.g. "Nov 25, 2025")
-  return end.toLocaleDateString();
+  return end.toLocaleDateString('lt-LT');
 }
 
 /**

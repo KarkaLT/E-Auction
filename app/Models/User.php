@@ -80,6 +80,7 @@ class User extends Authenticatable
 
     public function isBlocked(): bool
     {
-        return $this->blocked;
+        // Ensure a strict boolean is returned even if the attribute is null
+        return (bool) ($this->blocked ?? false);
     }
 }

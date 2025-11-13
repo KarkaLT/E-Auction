@@ -18,6 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import VisuallyHidden from '@/components/ui/visually-hidden';
 import { useInitials } from '@/hooks/use-initials';
+import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { formatLocalDateTime } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
@@ -72,7 +73,7 @@ export default function AuctionShow() {
   const [postingComment, setPostingComment] = useState(false);
 
   const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Auctions', href: '/auction-items' },
+    { title: t('common.auctions'), href: '/auction-items' },
     { title: auctionItem.title, href: `/auction-items/${auctionItem.id}` },
   ];
 
@@ -159,7 +160,9 @@ export default function AuctionShow() {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="mb-1 text-sm text-muted-foreground">Seller</p>
+                <p className="mb-1 text-sm text-muted-foreground">
+                  {t('auction.seller')}
+                </p>
                 <p className="text-lg font-semibold">
                   {auctionItem.seller?.name ?? 'You'}
                 </p>
@@ -172,7 +175,7 @@ export default function AuctionShow() {
             <CardContent className="flex flex-col items-center justify-center space-y-4 p-6 text-center">
               <div>
                 <p className="mb-2 text-sm text-muted-foreground">
-                  Current Bid
+                  {t('auction.currentBid')}
                 </p>
                 <p className="text-4xl font-bold">
                   $
@@ -185,7 +188,7 @@ export default function AuctionShow() {
               <div className="h-px w-full bg-destructive/50" />
               <div>
                 <p className="text-sm text-muted-foreground">
-                  Auction End. {formattedEndTime}
+                  {t('auction.auctionEnd')}. {formattedEndTime}
                 </p>
               </div>
             </CardContent>
@@ -199,7 +202,7 @@ export default function AuctionShow() {
                   {auctionItem.winner ? (
                     <>
                       <p className="mb-2 text-sm text-muted-foreground">
-                        Winner
+                        {t('auction.winner')}
                       </p>
                       <div className="flex items-center justify-center space-x-4">
                         <Avatar className="size-12">
@@ -215,7 +218,7 @@ export default function AuctionShow() {
                             {auctionItem.winner.name}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            Final price: $
+                            {t('auction.finalPrice')}: $
                             {parseFloat(currentPrice).toLocaleString('en-US', {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -226,9 +229,11 @@ export default function AuctionShow() {
                     </>
                   ) : (
                     <div className="mt-5 text-center">
-                      <p className="text-lg font-semibold">No winner</p>
+                      <p className="text-lg font-semibold">
+                        {t('auction.noWinner')}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        Final price: $
+                        {t('auction.finalPrice')}: $
                         {parseFloat(currentPrice).toLocaleString('en-US', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
@@ -237,12 +242,14 @@ export default function AuctionShow() {
                     </div>
                   )}
                   <p className="mt-3 text-sm text-muted-foreground">
-                    Auction ended. {formattedEndTime}
+                    {t('auction.ended')}. {formattedEndTime}
                   </p>
                 </div>
               ) : (
                 <div className="w-full">
-                  <p className="mb-2 text-sm text-muted-foreground">Your Bid</p>
+                  <p className="mb-2 text-sm text-muted-foreground">
+                    {t('auction.yourBid')}
+                  </p>
 
                   <div className="flex items-center justify-center space-x-3">
                     <Button
@@ -285,14 +292,14 @@ export default function AuctionShow() {
                   </div>
 
                   <p className="mt-3 text-sm text-muted-foreground">
-                    Minimum bid: $
+                    {t('auction.minBid')}: $
                     {parseFloat(minBid.toFixed(2)).toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Increment: ${parsedBidIncrement.toFixed(2)}
+                    {t('auction.increment')}: ${parsedBidIncrement.toFixed(2)}
                   </p>
                   <div className="mt-4 flex flex-col items-center">
                     <Button
@@ -342,12 +349,12 @@ export default function AuctionShow() {
                       disabled={placingBid || isSeller || !isLoggedIn}
                     >
                       {!isLoggedIn
-                        ? 'You need to be logged in'
+                        ? t('auction.needLogin')
                         : isSeller
-                          ? 'Cannot bid on your item'
+                          ? t('auction.youCannotBidOwnAuction')
                           : placingBid
-                            ? 'Placing…'
-                            : 'Place bid'}
+                            ? t('auction.placing')
+                            : t('auction.placeBid')}
                     </Button>
                   </div>
                 </div>
@@ -359,7 +366,9 @@ export default function AuctionShow() {
           {/* Description Card */}
           <Card className="border-0 bg-muted/50 md:col-span-3">
             <CardContent className="p-6">
-              <h2 className="mb-4 text-2xl font-semibold">Description</h2>
+              <h2 className="mb-4 text-2xl font-semibold">
+                {t('auction.description')}
+              </h2>
               <p className="text-base leading-relaxed text-muted-foreground">
                 {auctionItem.description}
               </p>
@@ -369,12 +378,14 @@ export default function AuctionShow() {
           {/* Comments Card */}
           <Card className="border-0 bg-muted/50 md:col-span-3">
             <CardContent className="p-6">
-              <h2 className="mb-4 text-2xl font-semibold">Comments</h2>
+              <h2 className="mb-4 text-2xl font-semibold">
+                {t('comments.comments')}
+              </h2>
 
               {/* Add comment form above the comments list */}
               <div className="mb-6">
                 <p className="mb-2 text-sm text-muted-foreground">
-                  Add a comment
+                  {t('comments.addComment')}
                 </p>
 
                 <textarea
@@ -383,8 +394,8 @@ export default function AuctionShow() {
                   className="min-h-20 w-full rounded-md border bg-muted/10 px-3 py-2 text-sm text-white"
                   placeholder={
                     isLoggedIn
-                      ? 'Write your comment...'
-                      : 'Log in to post comments'
+                      ? t('comments.writeComment')
+                      : t('comments.loginToComment')
                   }
                   disabled={!isLoggedIn}
                 />
@@ -448,10 +459,10 @@ export default function AuctionShow() {
                     }
                   >
                     {!isLoggedIn
-                      ? 'Log in to comment'
+                      ? t('comments.loginToComment')
                       : postingComment
-                        ? 'Posting…'
-                        : 'Post comment'}
+                        ? t('comments.posting')
+                        : t('comments.postComment')}
                   </Button>
                 </div>
               </div>
@@ -459,7 +470,7 @@ export default function AuctionShow() {
               <div className="space-y-4">
                 {comments.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    No comments yet.
+                    {t('comments.noComments')}
                   </p>
                 ) : (
                   comments.map((c) => (

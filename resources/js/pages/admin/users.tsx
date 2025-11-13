@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table';
 import { formatLocalDateTime } from '@/lib/utils';
 
+import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { users } from '@/routes/admin';
 import { type BreadcrumbItem } from '@/types';
@@ -16,11 +17,11 @@ import { Head, router, usePage } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Admin',
+    title: t('admin.admin'),
     href: users().url,
   },
   {
-    title: 'Users',
+    title: t('admin.users'),
     href: users().url,
   },
 ];
@@ -48,33 +49,37 @@ export default function AdminUsers() {
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Users Management" />
+      <Head title={t('admin.usersManagement')} />
       <div className="mt-6 flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Users Management</h2>
+          <h2 className="text-2xl font-bold">{t('admin.usersManagement')}</h2>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>All Users</CardTitle>
+            <CardTitle>{t('admin.allUsers')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>IP Address</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Role</TableHead>
+                    <TableHead>{t('admin.id')}</TableHead>
+                    <TableHead>{t('common.name')}</TableHead>
+                    <TableHead>{t('common.email')}</TableHead>
+                    <TableHead>{t('admin.ipAddress')}</TableHead>
+                    <TableHead>{t('admin.status')}</TableHead>
+                    <TableHead>{t('admin.role')}</TableHead>
                     <TableHead className="text-right">
-                      Auctions Created
+                      {t('admin.auctionsCreated')}
                     </TableHead>
-                    <TableHead className="text-right">Items Bought</TableHead>
-                    <TableHead>Registered</TableHead>
-                    <TableHead className="w-32 text-right">Actions</TableHead>
+                    <TableHead className="text-right">
+                      {t('admin.itemsBought')}
+                    </TableHead>
+                    <TableHead>{t('admin.registered')}</TableHead>
+                    <TableHead className="w-32 text-right">
+                      {t('common.actions')}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -84,7 +89,7 @@ export default function AdminUsers() {
                         colSpan={8}
                         className="h-24 text-center text-muted-foreground"
                       >
-                        No users found.
+                        {t('admin.noUsersFound')}
                       </TableCell>
                     </TableRow>
                   ) : (

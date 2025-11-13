@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/dropzone';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { localDatetimeInputToUtc } from '@/lib/utils';
 import { dashboard } from '@/routes';
@@ -17,8 +18,8 @@ import { UploadIcon, X } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Dashboard', href: dashboard().url },
-  { title: 'Create Auction', href: auctionItems.create().url },
+  { title: t('common.dashboard'), href: dashboard().url },
+  { title: t('auction.createAuction'), href: auctionItems.create().url },
 ];
 
 export default function CreateAuction() {
@@ -63,14 +64,16 @@ export default function CreateAuction() {
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Create Auction" />
+      <Head title={t('auction.createAuction')} />
       <div className="p-4">
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Create Auction</h1>
+          <h1 className="text-xl font-semibold">
+            {t('auction.createAuction')}
+          </h1>
         </div>
         <form onSubmit={submit} className="grid w-full gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{t('auction.title')}</Label>
             <Input
               id="title"
               value={data.title}
@@ -80,7 +83,7 @@ export default function CreateAuction() {
             {errors.title && <InputError message={errors.title} />}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="image">Images</Label>
+            <Label htmlFor="image">{t('auction.images')}</Label>
             <Dropzone
               className="min-h-36"
               accept={{ 'image/*': [] }}
@@ -122,10 +125,10 @@ export default function CreateAuction() {
                       <UploadIcon size={16} />
                     </div>
                     <p className="my-2 w-full text-center text-sm font-medium">
-                      Upload more files
+                      {t('auction.uploadMoreFiles')}
                     </p>
                     <p className="w-full text-center text-xs text-muted-foreground">
-                      Drag and drop or click to upload
+                      {t('auction.dragAndDropOrClick')}
                     </p>
                   </div>
                 </div>
@@ -136,7 +139,7 @@ export default function CreateAuction() {
             {photoError && <InputError message={photoError} />}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('auction.description')}</Label>
             <textarea
               id="description"
               className="min-h-32 rounded-md border bg-background p-2"
@@ -148,7 +151,9 @@ export default function CreateAuction() {
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="grid gap-2">
-              <Label htmlFor="starting_price">Starting price</Label>
+              <Label htmlFor="starting_price">
+                {t('auction.startingPrice')}
+              </Label>
               <Input
                 id="starting_price"
                 type="number"
@@ -165,7 +170,7 @@ export default function CreateAuction() {
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="bid_increment">Bid increment</Label>
+              <Label htmlFor="bid_increment">{t('auction.bidIncrement')}</Label>
               <Input
                 id="bid_increment"
                 type="number"
@@ -182,7 +187,7 @@ export default function CreateAuction() {
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="end_time">End time</Label>
+              <Label htmlFor="end_time">{t('auction.endTime')}</Label>
               <Input
                 id="end_time"
                 type="datetime-local"
@@ -201,13 +206,13 @@ export default function CreateAuction() {
               disabled={processing}
               className={buttonVariants({ variant: 'default' })}
             >
-              Create
+              {t('common.create')}
             </button>
             <Link
               href={dashboard().url}
               className={buttonVariants({ variant: 'ghost' })}
             >
-              Cancel
+              {t('common.cancel')}
             </Link>
           </div>
         </form>

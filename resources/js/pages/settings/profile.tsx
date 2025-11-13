@@ -10,13 +10,14 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { edit } from '@/routes/profile';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Profile settings',
+    title: t('settings.profileSettings'),
     href: edit().url,
   },
 ];
@@ -32,13 +33,13 @@ export default function Profile({
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Profile settings" />
+      <Head title={t('settings.profileSettings')} />
 
       <SettingsLayout>
         <div className="space-y-6">
           <HeadingSmall
-            title="Profile information"
-            description="Update your name and email address"
+            title={t('settings.profileInformation')}
+            description={t('settings.updateProfileInfo')}
           />
 
           <Form
@@ -51,7 +52,7 @@ export default function Profile({
             {({ processing, recentlySuccessful, errors }) => (
               <>
                 <div className="grid gap-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">{t('common.name')}</Label>
 
                   <Input
                     id="name"
@@ -60,14 +61,14 @@ export default function Profile({
                     name="name"
                     required
                     autoComplete="name"
-                    placeholder="Full name"
+                    placeholder={t('auth.fullName')}
                   />
 
                   <InputError className="mt-2" message={errors.name} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email address</Label>
+                  <Label htmlFor="email">{t('auth.emailAddress')}</Label>
 
                   <Input
                     id="email"
@@ -77,7 +78,7 @@ export default function Profile({
                     name="email"
                     required
                     autoComplete="username"
-                    placeholder="Email address"
+                    placeholder={t('auth.emailAddress')}
                   />
 
                   <InputError className="mt-2" message={errors.email} />
@@ -86,20 +87,19 @@ export default function Profile({
                 {mustVerifyEmail && auth.user.email_verified_at === null && (
                   <div>
                     <p className="-mt-4 text-sm text-muted-foreground">
-                      Your email address is unverified.{' '}
+                      {t('auth.emailUnverified')}{' '}
                       <Link
                         href={send()}
                         as="button"
                         className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                       >
-                        Click here to resend the verification email.
+                        {t('auth.clickToResend')}
                       </Link>
                     </p>
 
                     {status === 'verification-link-sent' && (
                       <div className="mt-2 text-sm font-medium text-green-600">
-                        A new verification link has been sent to your email
-                        address.
+                        {t('auth.verificationLinkSent')}
                       </div>
                     )}
                   </div>
@@ -110,7 +110,7 @@ export default function Profile({
                     disabled={processing}
                     data-test="update-profile-button"
                   >
-                    Save
+                    {t('common.save')}
                   </Button>
 
                   <Transition
@@ -120,7 +120,9 @@ export default function Profile({
                     leave="transition ease-in-out"
                     leaveTo="opacity-0"
                   >
-                    <p className="text-sm text-neutral-600">Saved</p>
+                    <p className="text-sm text-neutral-600">
+                      {t('common.saved')}
+                    </p>
                   </Transition>
                 </div>
               </>

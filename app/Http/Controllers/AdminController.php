@@ -13,7 +13,8 @@ class AdminController extends Controller
         $users = User::withCount([
             'auctionItems as auctions_created_count',
             'wonAuctionItems as items_bought_count' => function ($query) {
-                $query->where('status', 'ended');
+                // Count only auctions actually sold to the user
+                $query->where('status', 'sold');
             },
         ])
             ->orderBy('created_at', 'desc')

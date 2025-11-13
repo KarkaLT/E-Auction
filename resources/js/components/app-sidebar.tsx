@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { t } from '@/i18n';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
@@ -18,7 +19,7 @@ import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: t('common.dashboard'),
     href: dashboard(),
     icon: LayoutGrid,
   },
@@ -26,12 +27,12 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
   {
-    title: 'Repository',
+    title: t('nav.repository'),
     href: 'https://github.com/laravel/react-starter-kit',
     icon: Folder,
   },
   {
-    title: 'Documentation',
+    title: t('nav.documentation'),
     href: 'https://laravel.com/docs/starter-kits#react',
     icon: BookOpen,
   },
