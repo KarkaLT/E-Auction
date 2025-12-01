@@ -30,6 +30,11 @@ export const lt = {
     close: 'Uždaryti',
     yes: 'Taip',
     no: 'Ne',
+    admin: 'Administratorius',
+    switchProfile: 'Perjungti profilį',
+    seller: 'Pardavėjas',
+    buyer: 'Pirkėjas',
+    guest: 'Svečias',
   },
 
   // Authentication

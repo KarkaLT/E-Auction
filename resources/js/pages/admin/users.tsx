@@ -11,20 +11,7 @@ import { formatLocalDateTime } from '@/lib/utils';
 
 import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
-import { users } from '@/routes/admin';
-import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-  {
-    title: t('admin.admin'),
-    href: users().url,
-  },
-  {
-    title: t('admin.users'),
-    href: users().url,
-  },
-];
 
 interface AdminUser {
   id: number;
@@ -48,7 +35,7 @@ export default function AdminUsers() {
   const usersList = props.users ?? [];
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
+    <AppLayout>
       <Head title={t('admin.usersManagement')} />
       <div className="mt-6 flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
         <div className="flex items-center justify-between">

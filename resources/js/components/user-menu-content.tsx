@@ -33,7 +33,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuLabel className="text-xs text-muted-foreground">
-        Switch Profile
+        {t('common.switchProfile')}
       </DropdownMenuLabel>
       <DropdownMenuItem asChild>
         <Link
@@ -45,7 +45,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
           className="flex w-full cursor-pointer items-center text-left"
         >
           <Laptop className="mr-2 h-4 w-4" />
-          <span>Seller</span>
+          <span>{t('common.seller')}</span>
           {user.role === 'seller' && <span className="ml-auto text-xs">✓</span>}
         </Link>
       </DropdownMenuItem>
@@ -59,7 +59,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
           className="flex w-full cursor-pointer items-center text-left"
         >
           <Laptop className="mr-2 h-4 w-4" />
-          <span>Buyer</span>
+          <span>{t('common.buyer')}</span>
           {user.role === 'buyer' && <span className="ml-auto text-xs">✓</span>}
         </Link>
       </DropdownMenuItem>
@@ -74,7 +74,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             className="flex w-full cursor-pointer items-center text-left"
           >
             <Shield className="mr-2 h-4 w-4" />
-            <span>Admin</span>
+            <span>{t('common.admin')}</span>
             {user.role === 'admin' && (
               <span className="ml-auto text-xs">✓</span>
             )}

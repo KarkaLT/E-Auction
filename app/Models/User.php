@@ -24,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'sidebar_open',
     ];
 
     /**
@@ -57,6 +58,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'blocked' => 'boolean',
             'is_admin' => 'boolean',
+            'sidebar_open' => 'boolean',
         ];
     }
 

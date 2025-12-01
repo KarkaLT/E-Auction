@@ -1,9 +1,7 @@
 import AuctionPreview from '@/components/auction-preview';
-import { buttonVariants } from '@/components/ui/button';
 import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
-import auctionItems from '@/routes/auction-items'; // changed import
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 
 interface DashboardPageProps {
   auctionItems?: Array<{
@@ -40,12 +38,6 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold">
             {t('auction.yourRecentAuctions')}
           </h2>
-          <Link
-            href={auctionItems.create().url}
-            className={buttonVariants({ variant: 'default' })}
-          >
-            {t('auction.createAuction')}
-          </Link>
         </div>
         {auctionItemsList.length === 0 && (
           <div className="rounded border border-dashed p-6 text-center text-sm text-muted-foreground">

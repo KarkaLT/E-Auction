@@ -2,7 +2,9 @@ import AuctionPreview from '@/components/auction-preview';
 import { buttonVariants } from '@/components/ui/button';
 import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type SharedData } from '@/types';
+import { login } from '@/routes';
+import auctionRoutes from '@/routes/auction-items';
+import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 
 type AuctionItem = {
@@ -28,15 +30,10 @@ export default function AuctionIndex() {
   const { auctionItems, auth } = props as PageProps & SharedData;
 
   const isAuthenticated = Boolean((auth as { user?: unknown })?.user);
-  const breadcrumbs: BreadcrumbItem[] = [
-    {
-      title: isAuthenticated ? t('common.myAuctions') : t('common.auctions'),
-      href: '/auction-items',
-    },
-  ];
+  const user = (auth as { user?: { role?: string } })?.user;
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
+    <AppLayout>
       <Head
         title={isAuthenticated ? t('common.myAuctions') : t('common.auctions')}
       />
@@ -45,12 +42,20 @@ export default function AuctionIndex() {
           <h1 className="text-xl font-semibold">
             {isAuthenticated ? t('common.myAuctions') : t('common.auctions')}
           </h1>
-          {isAuthenticated && (
+          {user?.role === 'seller' && (
             <Link
-              href="/auction-items/create"
+              href={auctionRoutes.create().url}
               className={buttonVariants({ variant: 'default' })}
             >
               {t('auction.createAuction')}
+            </Link>
+          )}
+          {!isAuthenticated && (
+            <Link
+              href={login().url}
+              className={buttonVariants({ variant: 'default' })}
+            >
+              {t('common.login')}
             </Link>
           )}
         </div>

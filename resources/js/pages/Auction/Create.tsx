@@ -12,15 +12,9 @@ import AppLayout from '@/layouts/app-layout';
 import { localDatetimeInputToUtc } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import auctionItems from '@/routes/auction-items';
-import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { UploadIcon, X } from 'lucide-react';
 import { useState } from 'react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-  { title: t('common.dashboard'), href: dashboard().url },
-  { title: t('auction.createAuction'), href: auctionItems.create().url },
-];
 
 export default function CreateAuction() {
   const { data, setData, post, processing, errors, reset } = useForm({
@@ -63,7 +57,7 @@ export default function CreateAuction() {
   };
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
+    <AppLayout>
       <Head title={t('auction.createAuction')} />
       <div className="p-4">
         <div className="mb-4 flex items-center justify-between">
