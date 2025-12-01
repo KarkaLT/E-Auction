@@ -72,7 +72,7 @@ class AuctionItemController extends Controller
             'bid_increment' => 'required|numeric|min:0',
             'end_time' => 'required|date|after:now',
             'photos' => 'nullable|array|max:10',
-            'photos.*' => 'image|mimes:jpeg,jpg,png,webp|max:5120',
+            'photos.*' => 'image|mimes:jpeg,jpg,png,webp,avif|max:5120',
         ]);
 
         $photos = $request->file('photos', []);

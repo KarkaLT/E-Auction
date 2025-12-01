@@ -21,7 +21,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { formatLocalDateTime } from '@/lib/utils';
-import { type BreadcrumbItem, type SharedData } from '@/types';
+import { type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -71,11 +71,6 @@ export default function AuctionShow() {
   );
   const [newCommentBody, setNewCommentBody] = useState('');
   const [postingComment, setPostingComment] = useState(false);
-
-  const breadcrumbs: BreadcrumbItem[] = [
-    { title: t('common.auctions'), href: '/auction-items' },
-    { title: auctionItem.title, href: `/auction-items/${auctionItem.id}` },
-  ];
 
   const currentPrice = auctionItem.current_price ?? auctionItem.starting_price;
   // Bid amount state and helpers (must be declared after currentPrice)
@@ -510,7 +505,7 @@ export default function AuctionShow() {
 
       {/* Image preview dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="min-w-full">
+        <DialogContent className="m-0 flex h-9/10 w-auto items-center justify-center border-none bg-none p-0">
           {/* DialogTitle is required for accessibility; hide it visually for
               sighted users by wrapping it with VisuallyHidden. */}
           <DialogTitle>
@@ -521,7 +516,7 @@ export default function AuctionShow() {
               <img
                 src={selectedPhoto.file_path}
                 alt={`${auctionItem.title} preview`}
-                className="rounded-lg object-contain"
+                className="h-full w-auto object-cover"
               />
             )}
           </DialogClose>
@@ -531,5 +526,5 @@ export default function AuctionShow() {
   );
 
   // Always render auction show with the app layout so the bundled AppHeader is present.
-  return <AppLayout breadcrumbs={breadcrumbs}>{pageContent}</AppLayout>;
+  return <AppLayout>{pageContent}</AppLayout>;
 }

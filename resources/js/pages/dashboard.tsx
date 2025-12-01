@@ -2,17 +2,8 @@ import AuctionPreview from '@/components/auction-preview';
 import { buttonVariants } from '@/components/ui/button';
 import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
 import auctionItems from '@/routes/auction-items'; // changed import
-import { type BreadcrumbItem } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-  {
-    title: t('common.dashboard'),
-    href: dashboard().url,
-  },
-];
 
 interface DashboardPageProps {
   auctionItems?: Array<{
@@ -42,7 +33,7 @@ export default function Dashboard() {
   const wonAuctionsList = props.wonAuctions ?? [];
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
+    <AppLayout>
       <Head title={t('common.dashboard')} />
       <div className="mt-6 flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
         <div className="flex items-center justify-between">

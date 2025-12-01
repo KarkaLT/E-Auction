@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureBuyer;
+use App\Http\Middleware\EnsureSeller;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserNotBlocked;
 use App\Http\Middleware\HandleAppearance;
@@ -27,6 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
             'not-blocked' => EnsureUserNotBlocked::class,
+            'seller' => EnsureSeller::class,
+            'buyer' => EnsureBuyer::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

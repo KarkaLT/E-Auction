@@ -24,6 +24,12 @@ Route::get('/', function () {
 // Otherwise, the "/auction-items/{auction_item}" route can shadow "/auction-items/create"
 // and cause a 404 by attempting to resolve "create" as a model id.
 Route::middleware(['auth', 'not-blocked'])->group(function () {
+    // Comments for auction items - any authenticated user can comment
+    Route::post('auction-items/{auction_item}/comments', [\App\Http\Controllers\AuctionItemCommentController::class, 'store'])->name('auction-items.comments.store');
+});
+
+// Seller-only routes
+Route::middleware(['auth', 'not-blocked', 'seller'])->group(function () {
     Route::get('dashboard', function () {
         $user = Auth::user();
 
@@ -49,11 +55,13 @@ Route::middleware(['auth', 'not-blocked'])->group(function () {
         ]);
     })->name('dashboard');
 
-    // All mutating auction routes (create/store/edit/update/destroy) and bidding remain protected
+    // All mutating auction routes (create/store/edit/update/destroy) for sellers
     Route::resource('auction-items', AuctionItemController::class)->except(['index', 'show']);
+});
+
+// Buyer routes - can place bids
+Route::middleware(['auth', 'not-blocked'])->group(function () {
     Route::post('auction-items/{auction_item}/bid', [AuctionItemController::class, 'placeBid'])->name('auction-items.bid');
-    // Comments for auction items
-    Route::post('auction-items/{auction_item}/comments', [\App\Http\Controllers\AuctionItemCommentController::class, 'store'])->name('auction-items.comments.store');
 });
 
 // Admin routes

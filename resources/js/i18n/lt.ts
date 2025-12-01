@@ -111,6 +111,8 @@ export const lt = {
     increment: 'Prieaugis',
     needLogin: 'Turite būti prisijungę',
     placing: 'Pateikiama…',
+    noActiveAuctions: 'Nėra aktyvių aukcionų',
+    checkBackLater: 'Užeikite vėliau, kad pamatytumėte naujus skelbimus.',
   },
 
   // Comments

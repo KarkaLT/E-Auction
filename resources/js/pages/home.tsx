@@ -1,8 +1,10 @@
 import AuctionPreview from '@/components/auction-preview';
+import { EmptyState } from '@/components/empty-state';
 import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { type AuctionItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
+import { Gavel } from 'lucide-react';
 
 export default function Home() {
   const { auctions } = usePage<SharedData>().props as SharedData;
@@ -19,7 +21,7 @@ export default function Home() {
       </Head>
 
       {/* Ongoing auctions grid (public) */}
-      {auctionsList.length > 0 && (
+      {auctionsList.length > 0 ? (
         <div className="mt-8 w-full">
           <h2 className="mb-4 text-3xl font-semibold text-white">
             {t('auction.ongoingAuctions')}
@@ -29,6 +31,15 @@ export default function Home() {
               <AuctionPreview key={item.id} item={item} />
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="mt-12 w-full">
+          <EmptyState
+            title={t('auction.noActiveAuctions')}
+            description={t('auction.checkBackLater')}
+            icon={Gavel}
+            className="border-none bg-transparent text-white"
+          />
         </div>
       )}
 

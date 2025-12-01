@@ -19,7 +19,7 @@ class AuctionItemPhotoController extends Controller
 
         $request->validate([
             'photos' => 'required|array|min:1',
-            'photos.*' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
+            'photos.*' => 'required|image|mimes:jpeg,jpg,png,webp,avif|max:5120',
         ]);
 
         $photos = $request->file('photos', []);
