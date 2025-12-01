@@ -113,13 +113,12 @@ class AuctionItemController extends Controller
         $auctionItem->load(['seller', 'photos', 'comments.user', 'winner']);
 
         // Decide whether to render the page within the AppLayout.
-        // If the user navigated from the dashboard (Referer header contains '/dashboard'),
-        // render with AppLayout. If opened from the public home page, render without it.
+        // If the user navigated from seller/buyer pages or settings, render with AppLayout.
         $useAppLayout = false;
         $referer = $request->headers->get('referer');
         if (! empty($referer)) {
             $path = parse_url($referer, PHP_URL_PATH) ?: '';
-            if (str_contains($path, '/dashboard')) {
+            if (str_contains($path, '/seller/') || str_contains($path, '/buyer/') || str_contains($path, '/settings')) {
                 $useAppLayout = true;
             }
         }

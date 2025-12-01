@@ -18,8 +18,6 @@ import auctionItems from '@/routes/auction-items';
 import { SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
-  Gavel,
-  Home,
   LayoutDashboard,
   LogIn,
   PlusSquare,
@@ -86,22 +84,28 @@ export function AppSidebar() {
 
   const menuItems = [
     {
-      title: t('common.home'),
-      url: '/',
-      icon: Home,
-      visible: true,
-    },
-    {
-      title: t('common.dashboard'),
-      url: '/dashboard',
+      title: t('auction.ongoingAuctions'),
+      url: '/seller/ongoing-auctions',
       icon: LayoutDashboard,
       visible: user?.role === 'seller',
     },
     {
-      title: t('common.auctions'),
-      url: '/auction-items',
-      icon: Gavel,
-      visible: true,
+      title: t('auction.endedAuctions'),
+      url: '/seller/ended-auctions',
+      icon: LayoutDashboard,
+      visible: user?.role === 'seller',
+    },
+    {
+      title: t('auction.ongoingAuctions'),
+      url: '/buyer/ongoing-auctions',
+      icon: LayoutDashboard,
+      visible: user?.role === 'buyer',
+    },
+    {
+      title: t('auction.wonAuctions'),
+      url: '/buyer/won-auctions',
+      icon: LayoutDashboard,
+      visible: user?.role === 'buyer',
     },
     {
       title: t('auction.createAuction'),
@@ -131,7 +135,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
+              <Link href="/auction-items">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <AppLogoIcon className="size-4" />
                 </div>

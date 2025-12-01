@@ -5,21 +5,11 @@ use App\Models\AuctionItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
 
+// Redirect the root path to auction item listing — home page removed
 Route::get('/', function () {
-    // Fetch current ongoing auctions: active status and end_time in the future
-    $auctions = AuctionItem::where('status', 'active')
-        ->where('end_time', '>', now())
-        ->with('photos')
-        ->orderBy('end_time')
-        ->get();
-
-    return Inertia::render('home', [
-        'canRegister' => Features::enabled(Features::registration()),
-        'auctions' => $auctions,
-    ]);
-})->name('home');
+    return redirect()->route('auction-items.index');
+});
 // Important: Register the authenticated resource routes BEFORE the public "show" route.
 // Otherwise, the "/auction-items/{auction_item}" route can shadow "/auction-items/create"
 // and cause a 404 by attempting to resolve "create" as a model id.
@@ -30,30 +20,48 @@ Route::middleware(['auth', 'not-blocked'])->group(function () {
 
 // Seller-only routes
 Route::middleware(['auth', 'not-blocked', 'seller'])->group(function () {
-    Route::get('dashboard', function () {
+    Route::get('seller/ongoing-auctions', function () {
         $user = Auth::user();
 
         if (! $user instanceof \App\Models\User) {
             abort(500, 'Authenticated user type mismatch.');
         }
 
-        // Recent auctions created by the user
-        $auctionItems = $user->auctionItems()->latest()->take(5)->get();
-
-        // Recent auctions the user has won
-        $wonAuctions = AuctionItem::where('winner_id', $user->id)
+        // Ongoing auctions (active and end_time in the future)
+        $auctionItems = $user->auctionItems()
+            ->where('status', 'active')
+            ->where('end_time', '>', now())
             ->with('photos')
-            ->where('status', 'sold')
-            ->whereNotNull('winner_id')
-            ->orderByDesc('end_time')
-            ->take(5)
+            ->orderBy('end_time')
             ->get();
 
-        return Inertia::render('dashboard', [
+        return Inertia::render('seller/ongoing-auctions', [
             'auctionItems' => $auctionItems,
-            'wonAuctions' => $wonAuctions,
         ]);
-    })->name('dashboard');
+    })->name('seller.ongoing-auctions');
+
+    Route::get('seller/ended-auctions', function () {
+        $user = Auth::user();
+
+        if (! $user instanceof \App\Models\User) {
+            abort(500, 'Authenticated user type mismatch.');
+        }
+
+        // Ended auctions (sold, cancelled, or expired)
+        $auctionItems = $user->auctionItems()
+            ->whereIn('status', ['sold', 'cancelled', 'expired'])
+            ->orWhere(function ($query) use ($user) {
+                $query->where('seller_id', $user->id)
+                    ->where('end_time', '<=', now());
+            })
+            ->with('photos')
+            ->orderByDesc('end_time')
+            ->get();
+
+        return Inertia::render('seller/ended-auctions', [
+            'auctionItems' => $auctionItems,
+        ]);
+    })->name('seller.ended-auctions');
 
     // All mutating auction routes (create/store/edit/update/destroy) for sellers
     Route::resource('auction-items', AuctionItemController::class)->except(['index', 'show']);
@@ -62,9 +70,40 @@ Route::middleware(['auth', 'not-blocked', 'seller'])->group(function () {
 // Buyer routes - can place bids
 Route::middleware(['auth', 'not-blocked'])->group(function () {
     Route::post('auction-items/{auction_item}/bid', [AuctionItemController::class, 'placeBid'])->name('auction-items.bid');
-});
 
-// Admin routes
+    Route::get('buyer/ongoing-auctions', function () {
+        // All ongoing auctions (active and end_time in the future)
+        $auctionItems = AuctionItem::where('status', 'active')
+            ->where('end_time', '>', now())
+            ->with('photos')
+            ->orderBy('end_time')
+            ->get();
+
+        return Inertia::render('buyer/ongoing-auctions', [
+            'auctionItems' => $auctionItems,
+        ]);
+    })->name('buyer.ongoing-auctions');
+
+    Route::get('buyer/won-auctions', function () {
+        $user = Auth::user();
+
+        if (! $user instanceof \App\Models\User) {
+            abort(500, 'Authenticated user type mismatch.');
+        }
+
+        // Auctions the user has won
+        $wonAuctions = AuctionItem::where('winner_id', $user->id)
+            ->with('photos')
+            ->where('status', 'sold')
+            ->whereNotNull('winner_id')
+            ->orderByDesc('end_time')
+            ->get();
+
+        return Inertia::render('buyer/won-auctions', [
+            'wonAuctions' => $wonAuctions,
+        ]);
+    })->name('buyer.won-auctions');
+}); // Admin routes
 Route::middleware(['auth', 'not-blocked', 'admin'])->group(function () {
     Route::get('admin/users', [\App\Http\Controllers\AdminController::class, 'users'])->name('admin.users');
     Route::post('admin/users/{user}/block', [\App\Http\Controllers\AdminController::class, 'block'])->name('admin.users.block');

@@ -29,8 +29,8 @@ class UserRoleController extends Controller
         // Redirect to appropriate dashboard based on role
         return match ($validated['role']) {
             'admin' => redirect()->route('admin.users'),
-            'seller' => redirect()->route('dashboard'),
-            'buyer' => redirect()->route('home'),
+            'seller' => redirect()->route('seller.ongoing-auctions'),
+            'buyer' => redirect()->route('buyer.ongoing-auctions'),
             default => redirect()->route('home'),
         };
     }

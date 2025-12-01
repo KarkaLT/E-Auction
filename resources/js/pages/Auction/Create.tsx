@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { localDatetimeInputToUtc } from '@/lib/utils';
-import { dashboard } from '@/routes';
 import auctionItems from '@/routes/auction-items';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { UploadIcon, X } from 'lucide-react';
@@ -61,7 +60,7 @@ export default function CreateAuction() {
       <Head title={t('auction.createAuction')} />
       <div className="p-4">
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">
+          <h1 className="mb-4 text-2xl font-semibold">
             {t('auction.createAuction')}
           </h1>
         </div>
@@ -203,7 +202,7 @@ export default function CreateAuction() {
               {t('common.create')}
             </button>
             <Link
-              href={dashboard().url}
+              href={auctionItems.index().url}
               className={buttonVariants({ variant: 'ghost' })}
             >
               {t('common.cancel')}

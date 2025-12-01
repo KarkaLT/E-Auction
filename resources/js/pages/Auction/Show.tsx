@@ -98,7 +98,7 @@ export default function AuctionShow() {
       <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">{auctionItem.title}</h1>
+          <h1 className="mb-4 text-3xl font-semibold">{auctionItem.title}</h1>
           <Badge variant="secondary" className="rounded-full px-4 py-1.5">
             {auctionItem.status.charAt(0).toUpperCase() +
               auctionItem.status.slice(1)}
@@ -297,60 +297,67 @@ export default function AuctionShow() {
                     {t('auction.increment')}: ${parsedBidIncrement.toFixed(2)}
                   </p>
                   <div className="mt-4 flex flex-col items-center">
-                    <Button
-                      type="button"
-                      className="w-44 cursor-pointer select-none"
-                      onClick={() => {
-                        const placeBid = async () => {
-                          try {
-                            setPlacingBid(true);
-
-                            const token = document
-                              .querySelector('meta[name="csrf-token"]')
-                              ?.getAttribute('content');
-
-                            const res = await fetch(
-                              `/auction-items/${auctionItem.id}/bid`,
-                              {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                  Accept: 'application/json',
-                                  'X-CSRF-TOKEN': token ?? '',
-                                },
-                                credentials: 'same-origin',
-                                body: JSON.stringify({
-                                  bid_amount: bidAmount,
-                                }),
-                              },
-                            );
-
-                            if (!res.ok) {
-                              const body = await res.json().catch(() => ({}));
-                              // TODO: show nicer UI error; for now log and return
-                              console.error('Bid failed', body);
-                              return;
-                            }
-
-                            // Refresh the page so Inertia fetches updated auctionItem props
-                            router.reload();
-                          } finally {
-                            setPlacingBid(false);
-                          }
-                        };
-
-                        placeBid();
-                      }}
-                      disabled={placingBid || isSeller || !isLoggedIn}
-                    >
-                      {!isLoggedIn
-                        ? t('auction.needLogin')
-                        : isSeller
+                    <span
+                      className={`inline-block ${isSeller ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                      title={
+                        isSeller
                           ? t('auction.youCannotBidOwnAuction')
+                          : undefined
+                      }
+                    >
+                      <Button
+                        type="button"
+                        className={`w-44 select-none`}
+                        onClick={() => {
+                          const placeBid = async () => {
+                            try {
+                              setPlacingBid(true);
+
+                              const token = document
+                                .querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute('content');
+
+                              const res = await fetch(
+                                `/auction-items/${auctionItem.id}/bid`,
+                                {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    Accept: 'application/json',
+                                    'X-CSRF-TOKEN': token ?? '',
+                                  },
+                                  credentials: 'same-origin',
+                                  body: JSON.stringify({
+                                    bid_amount: bidAmount,
+                                  }),
+                                },
+                              );
+
+                              if (!res.ok) {
+                                const body = await res.json().catch(() => ({}));
+                                // TODO: show nicer UI error; for now log and return
+                                console.error('Bid failed', body);
+                                return;
+                              }
+
+                              // Refresh the page so Inertia fetches updated auctionItem props
+                              router.reload();
+                            } finally {
+                              setPlacingBid(false);
+                            }
+                          };
+
+                          placeBid();
+                        }}
+                        disabled={placingBid || isSeller || !isLoggedIn}
+                      >
+                        {!isLoggedIn
+                          ? t('auction.needLogin')
                           : placingBid
                             ? t('auction.placing')
                             : t('auction.placeBid')}
-                    </Button>
+                      </Button>
+                    </span>
                   </div>
                 </div>
               )}

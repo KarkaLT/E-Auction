@@ -16,7 +16,7 @@ class EnsureSeller
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->user() || ! $request->user()->isSeller()) {
-            return redirect()->route('home')->with('error', 'You must be in seller mode to access this page.');
+            return redirect()->route('auction-items.index')->with('error', 'You must be in seller mode to access this page.');
         }
 
         return $next($request);

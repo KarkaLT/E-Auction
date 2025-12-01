@@ -3,7 +3,6 @@ import { buttonVariants } from '@/components/ui/button';
 import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { login } from '@/routes';
-import auctionRoutes from '@/routes/auction-items';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 
@@ -30,7 +29,6 @@ export default function AuctionIndex() {
   const { auctionItems, auth } = props as PageProps & SharedData;
 
   const isAuthenticated = Boolean((auth as { user?: unknown })?.user);
-  const user = (auth as { user?: { role?: string } })?.user;
 
   return (
     <AppLayout>
@@ -39,17 +37,10 @@ export default function AuctionIndex() {
       />
       <div className="space-y-6 p-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">
+          <h1 className="mb-4 text-2xl font-semibold">
             {isAuthenticated ? t('common.myAuctions') : t('common.auctions')}
           </h1>
-          {user?.role === 'seller' && (
-            <Link
-              href={auctionRoutes.create().url}
-              className={buttonVariants({ variant: 'default' })}
-            >
-              {t('auction.createAuction')}
-            </Link>
-          )}
+
           {!isAuthenticated && (
             <Link
               href={login().url}

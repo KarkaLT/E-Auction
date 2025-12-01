@@ -16,7 +16,7 @@ class EnsureBuyer
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->user() || ! $request->user()->isBuyer()) {
-            return redirect()->route('home')->with('error', 'Access denied.');
+            return redirect()->route('auction-items.index')->with('error', 'Access denied.');
         }
 
         return $next($request);
