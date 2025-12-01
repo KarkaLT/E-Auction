@@ -35,6 +35,7 @@ export const lt = {
     seller: 'Pardavėjas',
     buyer: 'Pirkėjas',
     guest: 'Svečias',
+    warning: 'Įspėjimas',
   },
 
   // Authentication
@@ -122,6 +123,7 @@ export const lt = {
     placing: 'Pateikiama…',
     noActiveAuctions: 'Nėra aktyvių aukcionų',
     checkBackLater: 'Užeikite vėliau, kad pamatytumėte naujus skelbimus.',
+    sellerAuctions: ':count aukcionai',
   },
 
   // Comments
@@ -142,6 +144,7 @@ export const lt = {
     passwordSettings: 'Slaptažodžio nustatymai',
     twoFactorAuth: 'Dviejų faktorių autentifikacija',
     appearance: 'Išvaizda',
+    appearanceDescription: 'Atnaujinkite savo paskyros išvaizdos nustatymus',
     profileInformation: 'Profilio informacija',
     updateProfileInfo: 'Atnaujinkite savo vardą ir el. pašto adresą',
     updatePassword: 'Atnaujinti slaptažodį',
@@ -149,8 +152,12 @@ export const lt = {
       'Užtikrinkite, kad jūsų paskyra naudoja ilgą, atsitiktinį slaptažodį, kad būtų saugi',
     savePassword: 'Išsaugoti slaptažodį',
     deleteAccount: 'Ištrinti paskyrą',
+    deleteAccountDescription: 'Ištrinkite savo paskyrą ir visus jos išteklius',
     deleteAccountWarning:
       'Ištrinus paskyrą, visi jos ištekliai ir duomenys bus visam laikui ištrinti. Prieš ištrinant paskyrą, atsisiųskite visus duomenis ar informaciją, kurią norite išsaugoti.',
+    deleteAccountCaution: 'Prašome būti atsargiems — to atšaukti negalima.',
+    deleteAccountConfirmPassword:
+      'Įveskite savo slaptažodį, kad patvirtintumėte visam laikui ištrinti savo paskyrą.',
     deleteAccountConfirm: 'Ar tikrai norite ištrinti savo paskyrą?',
     twoFactorEnabled: 'Įjungta',
     twoFactorDisabled: 'Išjungta',
@@ -166,6 +173,12 @@ export const lt = {
       'Išsaugokite šiuos atkūrimo kodus saugioje vietoje. Juos galima naudoti atkurti prieigą prie paskyros, jei prarasite dviejų faktorių autentifikacijos įrenginį.',
     regenerateRecoveryCodes: 'Iš naujo generuoti atkūrimo kodus',
     showRecoveryCodes: 'Rodyti atkūrimo kodus',
+    manageProfileSettings: 'Valdykite savo profilį ir paskyros nustatymus',
+    appearanceOptions: {
+      light: 'Šviesus',
+      dark: 'Tamsus',
+      system: 'Pagal sistemą',
+    },
   },
 
   // Admin

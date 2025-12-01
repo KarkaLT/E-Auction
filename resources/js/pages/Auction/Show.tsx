@@ -46,7 +46,7 @@ interface AuctionItem {
   bid_increment: string;
   end_time: string;
   status: string;
-  seller?: { id: number; name: string };
+  seller?: { id: number; name: string; auction_items_count?: number };
   winner?: { id: number; name: string } | null;
   photos?: AuctionItemPhoto[];
   comments?: AuctionItemComment[];
@@ -161,6 +161,13 @@ export default function AuctionShow() {
                 <p className="text-lg font-semibold">
                   {auctionItem.seller?.name ?? 'You'}
                 </p>
+                {auctionItem.seller?.auction_items_count && (
+                  <p className="text-sm text-muted-foreground">
+                    {t('auction.sellerAuctions', {
+                      count: auctionItem.seller.auction_items_count,
+                    })}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -512,21 +519,31 @@ export default function AuctionShow() {
 
       {/* Image preview dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="m-0 flex h-9/10 w-auto items-center justify-center border-none bg-none p-0">
+        <DialogContent className="fixed inset-0 top-0! left-0! z-9999! m-0 flex h-full! w-full! max-w-none! translate-x-0! translate-y-0! items-center justify-center rounded-none! border-none bg-transparent p-0 shadow-none!">
           {/* DialogTitle is required for accessibility; hide it visually for
               sighted users by wrapping it with VisuallyHidden. */}
           <DialogTitle>
             <VisuallyHidden>Image preview</VisuallyHidden>
           </DialogTitle>
-          <DialogClose asChild>
+          <div className="relative flex h-full w-full items-center justify-center p-4 sm:p-6">
+            <DialogClose asChild>
+              <button
+                className="absolute top-4 right-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-black shadow"
+                aria-label="Close image preview"
+              >
+                ✕
+              </button>
+            </DialogClose>
+
             {selectedPhoto && (
               <img
                 src={selectedPhoto.file_path}
                 alt={`${auctionItem.title} preview`}
-                className="h-full w-auto object-cover"
+                className="mx-auto block max-h-[96vh] max-w-[96vw] cursor-zoom-out object-contain"
+                onClick={() => setPreviewOpen(false)}
               />
             )}
-          </DialogClose>
+          </div>
         </DialogContent>
       </Dialog>
     </>

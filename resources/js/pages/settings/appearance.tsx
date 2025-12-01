@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import { Head } from '@inertiajs/react';
 
 import AppearanceTabs from '@/components/appearance-tabs';
@@ -9,13 +10,13 @@ import SettingsLayout from '@/layouts/settings/layout';
 export default function Appearance() {
   return (
     <AppLayout>
-      <Head title="Appearance settings" />
+      <Head title={t('settings.appearance')} />
 
       <SettingsLayout>
         <div className="space-y-6">
           <HeadingSmall
-            title="Appearance settings"
-            description="Update your account's appearance settings"
+            title={t('settings.appearance')}
+            description={t('settings.appearanceDescription')}
           />
           <AppearanceTabs />
         </div>

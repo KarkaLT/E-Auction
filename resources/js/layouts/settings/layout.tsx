@@ -1,6 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { t } from '@/i18n';
 import { cn, isSameUrl, resolveUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit } from '@/routes/profile';
@@ -11,17 +12,17 @@ import { type PropsWithChildren } from 'react';
 
 const sidebarNavItems: NavItem[] = [
   {
-    title: 'Profile',
+    title: t('common.profile'),
     href: edit(),
     icon: null,
   },
   {
-    title: 'Password',
+    title: t('common.password'),
     href: editPassword(),
     icon: null,
   },
   {
-    title: 'Appearance',
+    title: t('settings.appearance'),
     href: editAppearance(),
     icon: null,
   },
@@ -38,8 +39,8 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
   return (
     <div className="px-4 py-6">
       <Heading
-        title="Settings"
-        description="Manage your profile and account settings"
+        title={t('common.settings')}
+        description={t('settings.manageProfileSettings')}
       />
 
       <div className="flex flex-col lg:flex-row lg:space-x-12">

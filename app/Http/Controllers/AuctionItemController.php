@@ -35,7 +35,7 @@ class AuctionItemController extends Controller
                 ->orderBy('end_time')
                 ->paginate(12);
 
-            return Inertia::render('Auction/Index', [
+            return Inertia::render('auction/index', [
                 'auctionItems' => $auctionItems,
             ]);
         }
@@ -47,7 +47,7 @@ class AuctionItemController extends Controller
         // Authenticated: show user's own auctions
         $auctionItems = $user->auctionItems()->latest()->paginate(10);
 
-        return Inertia::render('Auction/Index', [
+        return Inertia::render('auction/index', [
             'auctionItems' => $auctionItems,
         ]);
     }
@@ -57,7 +57,7 @@ class AuctionItemController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Auction/Create');
+        return Inertia::render('auction/create');
     }
 
     /**
@@ -112,6 +112,11 @@ class AuctionItemController extends Controller
         $this->authorize('view', $auctionItem); // optional if policy exists
         $auctionItem->load(['seller', 'photos', 'comments.user', 'winner']);
 
+        // Ensure the seller model has a count of how many auction items they created
+        if ($auctionItem->seller) {
+            $auctionItem->seller->loadCount('auctionItems');
+        }
+
         // Decide whether to render the page within the AppLayout.
         // If the user navigated from seller/buyer pages or settings, render with AppLayout.
         $useAppLayout = false;
@@ -123,7 +128,7 @@ class AuctionItemController extends Controller
             }
         }
 
-        return Inertia::render('Auction/Show', [
+        return Inertia::render('auction/show', [
             'auctionItem' => $auctionItem,
             'useAppLayout' => $useAppLayout,
         ]);
@@ -136,7 +141,7 @@ class AuctionItemController extends Controller
     {
         $this->authorize('update', $auctionItem);
 
-        return Inertia::render('Auction/Edit', [
+        return Inertia::render('auction/edit', [
             'auctionItem' => $auctionItem,
         ]);
     }
