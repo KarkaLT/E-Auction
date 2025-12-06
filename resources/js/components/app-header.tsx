@@ -15,7 +15,7 @@ import {
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import { t } from '@/i18n';
-import { home, login } from '@/routes';
+import { login } from '@/routes';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { Menu } from 'lucide-react';
@@ -58,9 +58,9 @@ export function AppHeader() {
             </Sheet>
           </div>
 
-          <Link href={home()} prefetch className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2">
             <AppLogo />
-          </Link>
+          </div>
 
           <div className="flex-1"></div>
 
@@ -92,7 +92,13 @@ export function AppHeader() {
               </>
             ) : (
               <Link href={login()} className="ml-2">
-                <Button variant="ghost" size="sm">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    console.log('login');
+                  }}
+                >
                   {t('common.login')}
                 </Button>
               </Link>

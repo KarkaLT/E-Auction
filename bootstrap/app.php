@@ -28,9 +28,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'buyer' => EnsureBuyer::class,
+            'guest' => \Illuminate\Auth\Middleware\RedirectIfAuthenticated::class,
             'not-blocked' => EnsureUserNotBlocked::class,
             'seller' => EnsureSeller::class,
-            'buyer' => EnsureBuyer::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
