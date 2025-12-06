@@ -130,6 +130,22 @@ services:
     networks:
       - laravel-development
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - '${PMA_PORT:-8000}:80'
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+      - PMA_USER=root
+      - PMA_PASSWORD=${DB_ROOT_PASSWORD:-root}
+      - TZ=Europe/Vilnius
+    depends_on:
+      mysql:
+        condition: service_started
+    networks:
+      - laravel-development
+
 networks:
   laravel-development:
 

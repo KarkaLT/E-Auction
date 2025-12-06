@@ -8,7 +8,6 @@ import { t } from '@/i18n';
 import AuthLayout from '@/layouts/auth-layout';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
-import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/react';
 
 interface LoginProps {
@@ -17,11 +16,7 @@ interface LoginProps {
   canRegister: boolean;
 }
 
-export default function Login({
-  status,
-  canResetPassword,
-  canRegister,
-}: LoginProps) {
+export default function Login({ status, canRegister }: LoginProps) {
   return (
     <AuthLayout
       title={t('auth.loginTitle')}
@@ -55,15 +50,6 @@ export default function Login({
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">{t('common.password')}</Label>
-                  {canResetPassword && (
-                    <TextLink
-                      href={request()}
-                      className="ml-auto text-sm"
-                      tabIndex={5}
-                    >
-                      {t('auth.forgotPassword')}
-                    </TextLink>
-                  )}
                 </div>
                 <Input
                   id="password"
