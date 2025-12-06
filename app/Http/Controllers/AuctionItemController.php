@@ -44,8 +44,29 @@ class AuctionItemController extends Controller
             abort(500, 'Authenticated user type mismatch.');
         }
 
-        // Authenticated: show user's own auctions
-        $auctionItems = $user->auctionItems()->latest()->paginate(10);
+        if ($user->isSeller()) {
+            // Show seller's ongoing auctions
+            $auctionItems = $user->auctionItems()
+                ->where('status', 'active')
+                ->where('end_time', '>', now())
+                ->with('photos')
+                ->orderBy('end_time')
+                ->paginate(12);
+        } elseif ($user->isBuyer()) {
+            // Show all ongoing auctions
+            $auctionItems = AuctionItem::where('status', 'active')
+                ->where('end_time', '>', now())
+                ->with('photos')
+                ->orderBy('end_time')
+                ->paginate(12);
+        } else {
+            // Default: show all ongoing auctions (for admin or other roles)
+            $auctionItems = AuctionItem::where('status', 'active')
+                ->where('end_time', '>', now())
+                ->with('photos')
+                ->orderBy('end_time')
+                ->paginate(12);
+        }
 
         return Inertia::render('auction/index', [
             'auctionItems' => $auctionItems,

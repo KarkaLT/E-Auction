@@ -32,6 +32,13 @@ export function AppSidebar() {
   const user = auth?.user;
   const currentPath = window.location.pathname;
 
+  const homeUrl =
+    user?.role === 'seller'
+      ? '/seller/ongoing-auctions'
+      : user?.role === 'buyer'
+        ? '/buyer/ongoing-auctions'
+        : '/auction-items';
+
   // Save sidebar state to backend
   const saveSidebarState = async (isOpen: boolean) => {
     if (!user) return;
@@ -130,7 +137,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/auction-items">
+              <Link href={homeUrl}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <AppLogoIcon className="size-4" />
                 </div>
