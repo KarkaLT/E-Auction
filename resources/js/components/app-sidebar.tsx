@@ -39,16 +39,11 @@ export function AppSidebar() {
     // Send plain AJAX request to avoid Inertia header requirement.
     // This backend route returns JSON and should not be treated as an Inertia response.
     try {
-      const token = document
-        .querySelector('meta[name="csrf-token"]')
-        ?.getAttribute('content');
-
       await fetch('/settings/sidebar-state', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
-          'X-CSRF-TOKEN': token ?? '',
           'X-Inertia': 'false',
         },
         credentials: 'same-origin',

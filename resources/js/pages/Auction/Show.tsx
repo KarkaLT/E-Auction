@@ -320,10 +320,6 @@ export default function AuctionShow() {
                             try {
                               setPlacingBid(true);
 
-                              const token = document
-                                .querySelector('meta[name="csrf-token"]')
-                                ?.getAttribute('content');
-
                               const res = await fetch(
                                 `/auction-items/${auctionItem.id}/bid`,
                                 {
@@ -331,7 +327,6 @@ export default function AuctionShow() {
                                   headers: {
                                     'Content-Type': 'application/json',
                                     Accept: 'application/json',
-                                    'X-CSRF-TOKEN': token ?? '',
                                   },
                                   credentials: 'same-origin',
                                   body: JSON.stringify({
@@ -418,10 +413,6 @@ export default function AuctionShow() {
                         try {
                           setPostingComment(true);
 
-                          const token = document
-                            .querySelector('meta[name="csrf-token"]')
-                            ?.getAttribute('content');
-
                           const res = await fetch(
                             `/auction-items/${auctionItem.id}/comments`,
                             {
@@ -429,7 +420,6 @@ export default function AuctionShow() {
                               headers: {
                                 'Content-Type': 'application/json',
                                 Accept: 'application/json',
-                                'X-CSRF-TOKEN': token ?? '',
                               },
                               credentials: 'same-origin',
                               body: JSON.stringify({ body: newCommentBody }),
