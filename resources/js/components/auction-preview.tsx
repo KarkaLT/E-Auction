@@ -29,7 +29,8 @@ export default function AuctionPreview({
   }
 
   // keep `group` so nested `group-hover` styles (title) still work
-  const wrapperClass = `group transition hover:shadow-md w-100 h-90 ${className}`;
+  // Fix card width so it doesn't scale with the grid columns. Keep height auto so content determines height.
+  const wrapperClass = `group transition hover:shadow-md w-[320px] h-auto ${className}`;
 
   // Wrap the card in a Link by default so clicking the card opens the auction page.
   // Consumers can pass `link={false}` to render without navigation wrapper.

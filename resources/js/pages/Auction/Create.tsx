@@ -16,14 +16,16 @@ import { UploadIcon, X } from 'lucide-react';
 import { useState } from 'react';
 
 export default function CreateAuction() {
-  const { data, setData, post, processing, errors, reset } = useForm({
-    title: '',
-    photos: [] as File[],
-    description: '',
-    starting_price: '',
-    bid_increment: '',
-    end_time: '',
-  });
+  const { data, setData, post, processing, errors, reset, transform } = useForm(
+    {
+      title: '',
+      photos: [] as File[],
+      description: '',
+      starting_price: '',
+      bid_increment: '',
+      end_time: '',
+    },
+  );
 
   // Store the local datetime-local value for the input
   const [localEndTime, setLocalEndTime] = useState('');
@@ -36,8 +38,10 @@ export default function CreateAuction() {
     e.preventDefault();
 
     // Convert local time to UTC before submitting
-    const utcEndTime = localDatetimeInputToUtc(localEndTime);
-    setData('end_time', utcEndTime);
+    transform((data) => ({
+      ...data,
+      end_time: localDatetimeInputToUtc(localEndTime),
+    }));
 
     post(auctionItems.store().url, {
       forceFormData: true,
