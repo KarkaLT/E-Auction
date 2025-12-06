@@ -88,16 +88,16 @@ export default function AdminUsers() {
                         <TableCell>{user.name}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell className="font-mono text-sm">
-                          {user.ip_address || 'N/A'}
+                          {user.ip_address || t('common.notAvailable')}
                         </TableCell>
                         <TableCell>
                           {user.blocked ? (
                             <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-900 dark:text-red-200">
-                              Blocked
+                              {t('admin.blocked')}
                             </span>
                           ) : (
                             <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
-                              Active
+                              {t('admin.active')}
                             </span>
                           )}
                         </TableCell>
@@ -129,7 +129,7 @@ export default function AdminUsers() {
                                 router.post(`/admin/users/${user.id}/unblock`)
                               }
                             >
-                              Unblock
+                              {t('admin.unblockUser')}
                             </button>
                           ) : (
                             <button
@@ -138,7 +138,7 @@ export default function AdminUsers() {
                                 router.post(`/admin/users/${user.id}/block`)
                               }
                             >
-                              Block
+                              {t('admin.blockUser')}
                             </button>
                           )}
                         </TableCell>

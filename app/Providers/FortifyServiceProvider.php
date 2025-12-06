@@ -63,7 +63,7 @@ class FortifyServiceProvider extends ServiceProvider
             // If credentials are correct but the account is blocked, raise a clear error
             if ((bool) ($user->blocked ?? false)) {
                 throw ValidationException::withMessages([
-                    Fortify::username() => __('Your account is blocked. Please contact support.'),
+                    Fortify::username() => __('Jūsų paskyra užblokuota. Susisiekite su administratoriumi.'),
                 ]);
             }
 

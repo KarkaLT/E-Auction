@@ -11,7 +11,7 @@ import { t } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import { localDatetimeInputToUtc } from '@/lib/utils';
 import auctionItems from '@/routes/auction-items';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { UploadIcon, X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -205,12 +205,6 @@ export default function CreateAuction() {
             >
               {t('common.create')}
             </button>
-            <Link
-              href={auctionItems.index().url}
-              className={buttonVariants({ variant: 'ghost' })}
-            >
-              {t('common.cancel')}
-            </Link>
           </div>
         </form>
       </div>

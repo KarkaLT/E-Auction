@@ -36,6 +36,7 @@ export const lt = {
     buyer: 'Pirkėjas',
     guest: 'Svečias',
     warning: 'Įspėjimas',
+    notAvailable: 'Nėra',
   },
 
   // Authentication
