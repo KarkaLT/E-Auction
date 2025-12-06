@@ -2,131 +2,94 @@
 
 Summary
 
-- This repo is a Laravel backend with Inertia + React frontend (Vite + TypeScript).
-- Backend responsibilities: business logic, persistence, authentication, queueing, email sending, and server-side route registration.
-- Frontend responsibilities: views and UI (Inertia pages, React components, Tailwind + Radix UI). Routes are generated into `resources/js/routes` via `wayfinder`.
+- Laravel 12 backend (PHP 8.2+); Inertia + React (Vite + TypeScript) frontend.
+- Responsibilities:
+  - Backend: business logic, persistence, auth, queueing, mail, CLI commands, server routes.
+  - Frontend: Inertia pages + React components, client-side logic, typed route helpers from wayfinder.
 
-Note for AI agents
+Quick highlights for AI agents
 
-- This repo expects commands to be executed inside development containers. Always run commands in the `workspace` (or `php-fpm`) container using `docker compose -f compose.dev.yaml exec ...` or `docker compose -f compose.dev.yaml run --rm workspace ...`. Avoid executing commands directly on the host OS to ensure environment parity and UID/GID consistency.
+- Run commands inside the Docker development containers (prefer `workspace` or `php-fpm`). Examples:
+  - `docker compose -f compose.dev.yaml exec workspace bash` (interactive shell)
+  - `docker compose -f compose.dev.yaml exec workspace composer setup` (initial setup)
+  - `docker compose -f compose.dev.yaml exec workspace php artisan wayfinder:generate` (regenerate TypeScript route/actions files)
+  - `docker compose -f compose.dev.yaml exec workspace php artisan storage:link` (ensure public URLs for uploaded files)
 
-Quick Start & Developer Workflows
+Important developer workflows
 
-- Setup (recommended):
-  - composer setup (runs: composer install, set up .env, generate key, migrate, npm install & build)
-  - OR: Run the steps manually: `composer install`, `cp .env.example .env`, `php artisan key:generate`, `php artisan migrate`, `npm install`.
-- Run in dev: `composer dev` (runs `php artisan serve`, `php artisan queue:listen`, `php artisan pail`, and `npm run dev` concurrently).
-  - NOTE: When using Docker, prefer running the stack with `docker compose -f compose.dev.yaml up -d` and run the respective processes inside the containers instead of running `composer dev` locally.
-- SSR dev: `composer run dev:ssr` uses `php artisan inertia:start-ssr` & Vite.
-- Build assets: `npm run build` — CI also runs `npm run build` before tests.
-- Run tests: `./vendor/bin/pest` (CI does this), or `composer test`.
-- Lint & format: `vendor/bin/pint` for PHP; `npm run lint`, `npm run format` for frontend; pre-commit is enforced by Husky + lint-staged.
+- Start dev environment: prefer Docker `compose.dev.yaml` (dev services: `workspace`, `php-fpm`, `web`, `mysql`, `redis`, `mailpit`).
+  - Start: `docker compose -f compose.dev.yaml up -d --build`
+  - Stop: `docker compose -f compose.dev.yaml down`
+- Composer scripts (for the workspace container):
+  - `composer setup` — installs dependencies, creates `.env`, runs migrations and builds frontend assets
+  - `composer dev` — starts PHP server, queue listener, pail logs and Vite via `concurrently` (for local non-Docker flow)
+  - `composer run dev:ssr` — SSR flow (server + queue + pail + inertia:ssr)
+- Frontend build / dev: use `npm run dev` or `npm run build` inside container; `vite` has `wayfinder` plugin enabled for generating typed route helpers during build.
+- Route / Types generation: run `php artisan wayfinder:generate` when backend route signatures change; the files are generated in `resources/js/routes` and `resources/js/actions` (or configured path). If you modify controller method signatures or add routes, regenerate via this command.
 
-Docker Development (required for local dev)
+Repo-specific conventions / patterns
 
-- This repository provides a Docker-based development stack: `compose.dev.yaml` defines `workspace`, `php-fpm`, `web`, `mysql`, `redis`, `mailpit` and other services. _Always run commands inside containers to match developer environment._
-- Start the stack (detached):
-  - `docker compose -f compose.dev.yaml up -d --build`
-- Stop the stack:
-  - `docker compose -f compose.dev.yaml down`
-- One-off commands and interactive shells (preferred container: `workspace`):
-  - Open a shell in the workspace container:
-    - `docker compose -f compose.dev.yaml exec workspace bash`
-  - Run a one-off command in the workspace container (npm/composer/artisan/tests):
-    - `docker compose -f compose.dev.yaml exec workspace composer install`
-    - `docker compose -f compose.dev.yaml exec workspace php artisan migrate --force`
-    - `docker compose -f compose.dev.yaml exec workspace ./vendor/bin/pest`
-    - `docker compose -f compose.dev.yaml exec workspace npm run dev` (Vite — already run by the workspace entrypoint but useful for manual runs)
-  - If the container is not running use `docker compose -f compose.dev.yaml run --rm workspace <command>` to run a single command and then exit.
-- Prefer running `php artisan` in either `workspace` or `php-fpm` depending on whether you want a CLI environment or to interact with the service that serves the web requests.
-- UID/GID: this repo passes `UID`/`GID` as build args for proper file ownership; keep these consistent with your host user when building/running the containers. Example: `UID=$(id -u) GID=$(id -g) docker compose -f compose.dev.yaml up -d`.
-  - POSIX shell (bash/zsh):
-    - `UID=$(id -u) GID=$(id -g) docker compose -f compose.dev.yaml up -d`
-  - fish shell (macOS default on your machine):
-    - `set -x UID (id -u); set -x GID (id -g); docker compose -f compose.dev.yaml up -d`
-- Windows / macOS caveats: containers expose ports for dev (e.g. `5173`, `80`, `3306`); on macOS, you may need to use `host.docker.internal` as the host for forwarded connections (this repo includes `XDEBUG_HOST` defaults accordingly).
-- PHP extensions: The `workspace` and `php-fpm` Dockerfiles include PHP with common extensions and Xdebug; however `ext-gd` with WebP support is required for image conversion and is validated by `StoreAuctionItemPhotos`; ensure it's present in your container image if you run image-related tests.
+- Actions (single-responsibility classes): place new business logic in `app/Actions/<Feature>` rather than controllers. Example: `app/Actions/AuctionItems/StoreAuctionItemPhotos.php` which:
+  - converts uploaded images to WebP using ext-gd functions,
+  - stores them with `Storage::disk('public')`,
+  - uses `DB::transaction()` and cleans up partially stored files on failure.
+- Controllers are thin; use `authorize()` or `policy` checks (e.g., `app/Policies/AuctionItemPolicy.php`). Use `DB::transaction()` for multi-step state changes.
+- Role checks and middlewares: `EnsureSeller`, `EnsureBuyer`, `EnsureUserIsAdmin`, and `EnsureUserNotBlocked` live in `app/Http/Middleware`. Prefer middleware usage for access gating and make sure to check `User::isSeller()` / `isBuyer()` / `isAdmin()` if needed.
+- Route registration order matters: protected (resource) routes are registered BEFORE public `show` routes to prevent path collisions (see `routes/web.php`).
 
-Helpful docker toolbox (logs/restart/rebuild)
+Frontend specifics
 
-- Follow these for debugging and rebuilding images:
-  - Follow logs: `docker compose -f compose.dev.yaml logs -f` or logs from a single service: `docker compose -f compose.dev.yaml logs -f workspace`
-  - Restart a container: `docker compose -f compose.dev.yaml restart workspace`
-  - Rebuild a single image: `docker compose -f compose.dev.yaml build --no-cache workspace`
+- Routes and typed actions: `resources/js/routes/*` and `resources/js/actions/*` are generated by Wayfinder. Use the exported helpers instead of hard-coded strings. E.g. `auctionItems.create().url`.
+- Shared props (Inertia): `usePage<SharedData>().props` reads shared data; `resources/js/types/index.d.ts` defines `SharedData` and models like `AuctionItem`.
+- UI components and patterns: `resources/js/components/ui/*` are shared; pages in `resources/js/pages/*` and layouts in `resources/js/layouts/*` (AppLayout is the main wrapper).
+- For AJAX-only endpoints (not Inertia), use `fetch()` with headers `Accept: 'application/json'` and, when needed, add `X-Inertia: 'false'` (e.g., `settings/sidebar-state` uses `X-Inertia: 'false'` to avoid Inertia handling the response). For in-page actions, prefer typed actions from `resources/js/actions/*`.
 
-Architecture & Key Patterns (what to know)
+Important API & UX patterns to follow
 
-- Backend (app/): Laravel controllers, models, policies, actions, console commands, and mailables.
-  - Business logic-heavy operations are implemented as single-responsibility Action classes in `app/Actions` (e.g., `StoreAuctionItemPhotos`). Prefer new Action classes instead of placing complex logic in controllers.
-  - Controllers remain thin and handle request/validation/response (see `AuctionItemController`): use `DB::transaction()` for mutating operations.
-  - Authorization is performed with Policies (e.g. `app/Policies/AuctionItemPolicy.php`) and middlewares: `EnsureSeller`, `EnsureUserIsAdmin`, `EnsureBuyer`, `EnsureUserNotBlocked`.
-  - Email & queueing: use Laravel's Mailables and queue jobs; the repository uses `laravel/pail` (log collection) and `queue:listen` is part of dev flow.
-  - CLI: scheduled/console commands implement important flows (ex: `EndExpiredAuctions` which marks auctions sold/finished and triggers `AuctionSoldMail`).
+- File uploads: validate in controllers (e.g., `image|mimes:jpeg,jpg,png,webp,avif|max:5120`) and convert in Actions. Ensure `ext-gd` with WebP support is available in the dev image; image processing will fail without it.
+- Auctions / bidding: `AuctionItemController@placeBid` is a JSON POST endpoint (returning updated auction data). The frontend uses `fetch()` and `router.reload()` to re-load Inertia page data after success.
+- Mutating operations should:
+  - use `DB::transaction()` to ensure consistency,
+  - `refresh()` models inside transactions if needed to avoid stale reads,
+  - catch and `report($exception)` before returning an appropriate HTTP error response.
+- Background processes / queue: `php artisan queue:listen` should run in dev to process jobs and queue-based flows (used with `composer dev`).
+  - `php artisan pail` requires the `pcntl` extension; the `workspace`/`php-fpm` images include this in dev targets.
 
-- Frontend (resources/js): Inertia + React with TypeScript.
-  - Pages live in `resources/js/pages/*` and layouts in `resources/js/layouts/*` (e.g., `AppSidebarLayout`, `AppLayout`). Use the `AppLayout` (or `settings`/`auth` layouts) for rendering pages.
-  - UI components in `resources/js/components/ui` are reusable and follow a composition/variant pattern (Class-Variance Authority). Explore `Sidebar`, `Button`, `Input`, etc.
-  - Routes are generated and typed under `resources/js/routes/*` using the wayfinder system. Prefer using `   import auctionItems from '@/routes/auction-items'
-auctionItems.create().url` for generating URLs.
-  - Localization: Use `t('path.key')` helper (see `resources/js/i18n`), avoid hard-coding strings.
-  - Shared data through Inertia: `SharedData` type (`resources/js/types/index.d.ts`) shows the server-provided props. Use `usePage<SharedData>().props` to access them.
+- CI / Formatting / Husky hooks
+- CI runs `npm run build`.
+- Formatting & linting: `vendor/bin/pint` (PHP) + `npm run lint` / `npm run format` (frontend). The repository uses Husky + lint-staged hooks.
 
-Notable Implementation Details & Conventions
+Common commands (copy-paste) — run inside `workspace` container
 
-- Route registration order: be careful with resource route order — the code registers protected resource routes before the public `show` route to avoid the `create` path being interpreted as a model id. See `routes/web.php` and the comment above the route registration.
-- Use `StoreAuctionItemPhotos` to process image uploads and convert to WebP on the server; it throws if the GD WebP extension is missing — tests / CI expect image handling to be validated.
-- When you need to update sidebar state or similar JSON-only endpoints, the frontend uses `fetch()` with headers `Accept: 'application/json'` and `X-Inertia: 'false'` to avoid Inertia response handling. Example (from `AppSidebar`):
-  - `await fetch('/settings/sidebar-state', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token ?? '', 'X-Inertia': 'false' }, body: JSON.stringify({ sidebar_open: isOpen }) })`
-- File uploads: Controller validates `photos` with `image|mimes:jpeg,jpg,png,webp,avif|max:5120` and actions encode to WebP; keep validation in controllers and conversion in actions.
-- Mutating operations typically use transactions, refresh model data before writing, and call `report($exception)` in catch blocks.
+```fish
+docker compose -f compose.dev.yaml up -d --build
+docker compose -f compose.dev.yaml exec workspace bash # get a shell
+docker compose -f compose.dev.yaml exec workspace composer setup
+docker compose -f compose.dev.yaml exec workspace php artisan migrate --force
+docker compose -f compose.dev.yaml exec workspace php artisan wayfinder:generate
+docker compose -f compose.dev.yaml exec workspace php artisan storage:link
+docker compose -f compose.dev.yaml exec workspace npm run dev
+```
 
-Naming & File Layout Conventions
+Integration points & external dependencies
 
-- Actions: `app/Actions/<Feature>/<ActionName>.php` (e.g., `StoreAuctionItemPhotos`) — single responsibility classes.
-- Controllers: `app/Http/Controllers/*Controller.php` (thin controllers; return Inertia views).
-- Views: `resources/js/pages/*` (split by feature), `resources/js/layouts/*` (App / Auth / Settings), `resources/js/components` for UI.
-- Routes: `routes/web.php`, `routes/settings.php` — small files and route groups (auth, admin, seller, buyer). Frontend route helpers are generated to `resources/js/routes/*`.
+- Databases: MySQL (container `mysql`), Redis (`redis`) for caching/queue drivers.
+- Mail: `mailpit` container for SMTP in dev.
+- Wayfinder (routes + actions generation) powers frontend type-safety — run `php artisan wayfinder:generate` after route/controller changes.
 
-Coding Best Practices for AI Agents (actionable, repo-specific)
+What AI agents should do when adding features
 
-- Keep controllers thin: business logic should be moved to `app/Actions/*` and tested there.
-- If adding a new route to a resource with both public & protected paths, follow `routes/web.php` order to avoid shadowing (always register protected resource routes BEFORE public `show` route or use explicit routes).
-- Use `wayfinder` TypeScript route helpers `resources/js/routes/*` for consistent route generation on the front-end.
-- For any endpoint consumed by the frontend that returns JSON (not an Inertia page), ensure the client sets `X-Inertia: 'false'` header when calling with `fetch`, and the backend returns JSON. See `AppSidebar` example.
-- For file uploads: validate in the controller and convert or store in Actions; ensure `php-gd` or `ext-gd` with WebP support is available.
-- Use `DB::transaction()` where mutually consistent state changes are needed (e.g., create auction + store photos) and keep catch blocks that cleanup and `report($e)`.
-- When changing or granting role logic: confirm the role names used in code are `user`, `seller`, `buyer`, `admin`. Middleware `EnsureSeller`, `EnsureBuyer`, and `EnsureUserIsAdmin` control access to role-specific pages.
+- Add new business logic to `app/Actions/*`.
+- Keep controllers thin: validate request, authorize, dispatch Actions, return Inertia or JSON as needed.
+- If adding new routes that also get entered by the frontend, regenerate Wayfinder output to keep typed route definitions in sync.
+- If adding public resource routes with `Route::resource`, register protected (create/edit/store/update) resource routes BEFORE the public `show` route to avoid a path collision.
 
-CI/Testing/Husky hooks
+Examples (copy-paste safe)
 
-- CI uses PHP 8.4 and Node 22 (see `.github/workflows/*`). Run `./vendor/bin/pest` locally to match CI.
-  - Run tests inside the workspace container to mirror CI:
-    - `docker compose -f compose.dev.yaml exec workspace ./vendor/bin/pest`
-- Use `vendor/bin/pint` for PHP formatting, `npm run format` for frontend formatting, `npm run lint` for linting.
-- Husky + lint-staged runs `prettier` and eslint on staged files; don't bypass pre-commit hooks on PRs if unnecessary.
-  - Run lint/format in container: `docker compose -f compose.dev.yaml exec workspace vendor/bin/pint` and `docker compose -f compose.dev.yaml exec workspace npm run lint`.
-
-When adding features or refactors
-
-- Prefer adding an Action for new logic and keep controllers minimal. Unit tests should target the Action and integration tests should verify controller interactions.
-- Update `resources/js/routes/*` if you add new routes — regenerate using the wayfinder tooling if available (or follow the existing generator pattern used here).
-- If adding an Inertia page, export the Inertia view from a controller and update a `resources/js/pages/*` file accordingly. Use `SharedData` if you need common props.
-
-Small examples (copy-paste safe):
-
-- Use typed route helpers in frontend code:
+- Using typed route helper (frontend):
   - `import auctionItems from '@/routes/auction-items'
- Link href={auctionItems.create().url}
-`
-- Persist sidebar state from frontend:
-  - `fetch('/settings/sidebar-state', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'X-Inertia': 'false' }, body: JSON.stringify({ sidebar_open: isOpen }) })`
-- Use Actions for complex business logic in backend:
-  - `public function store(Request $request) { $validated = $request->validate(...); DB::transaction(fn() => { $auction = AuctionItem::create($validated); $this->storeAuctionItemPhotos->handle($auction, $files); }); }
-
-If anything is ambiguous, ask for:
-
-- Where to store a new Action or whether it should be a controller update (prefer Action for reused logic).
-- Whether endpoints should be Inertia pages or JSON APIs (use JSON when the client is a fetch call with X-Inertia false).
-- Any missing CI expectations (tests or required PHP extensions like GD webp).
-
-Thank you — I can iterate on this if you want: add more examples, expand to include testing patterns, or merge with your existing team docs.
+  - `<Link href={auctionItems.create().url}>Create</Link>`
+- AJAX-only endpoint call (frontend):
+  - `await fetch('/settings/sidebar-state', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-Inertia': 'false', }, body: JSON.stringify({ sidebar_open: isOpen }) })`
+- Using an Action in a controller (backend):
+  - `DB::transaction(fn() => { $auction = AuctionItem::create($validated); $this->storeAuctionItemPhotos->handle($auction, $photos); })`
