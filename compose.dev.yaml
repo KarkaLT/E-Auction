@@ -47,6 +47,12 @@ services:
     depends_on:
       mysql:
         condition: service_started # Wait for mysql to start
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "sh", "-c", "ss -ltn | grep -q ':9000' || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
   scheduler:
     # Dedicated container for Laravel scheduler
@@ -69,7 +75,12 @@ services:
     depends_on:
       php-fpm:
         condition: service_started
-    command: php artisan schedule:work
+    # Wait for `vendor/autoload.php` to be present before starting the scheduler
+    # (the host bind mount hides the image-built vendor directory until composer
+    # runs inside the workspace container). This prevents the container from
+    # exiting immediately when `php artisan` can't find vendor files.
+    command: sh -c "while [ ! -f /var/www/vendor/autoload.php ]; do sleep 1; done; php artisan schedule:work"
+    restart: unless-stopped
 
   workspace:
     # For the workspace service, we will also create a custom image to install and setup all the necessary stuff.

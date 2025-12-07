@@ -8,6 +8,11 @@ mkdir -p /var/www/bootstrap/cache
 
 chmod -R 775 /var/www/storage /var/www/bootstrap/cache 2>/dev/null || true
 
+# Ensure the standard Laravel storage symlink exists so /storage routes are served from public
+if [ ! -L /var/www/public/storage ]; then
+	php artisan storage:link || true
+fi
+
 # Clear any cached configurations for development
 php artisan config:clear || true
 php artisan route:clear || true
