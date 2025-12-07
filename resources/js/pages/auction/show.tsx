@@ -256,7 +256,7 @@ export default function AuctionShow() {
                   <div className="flex items-center justify-center space-x-3">
                     <Button
                       type="button"
-                      className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border bg-white text-lg shadow-sm disabled:opacity-50"
+                      className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border bg-white text-lg text-black shadow-sm hover:bg-neutral-100 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-700"
                       onClick={() => {
                         setBidAmount((prev) => {
                           const next = parseFloat(
@@ -273,7 +273,7 @@ export default function AuctionShow() {
 
                     <Input
                       type="number"
-                      className="h-10 w-36 rounded-md border bg-muted/10 px-3 py-2 text-center text-lg text-white"
+                      className="h-10 w-36 rounded-md border bg-muted/10 px-3 py-2 text-center text-lg dark:text-white"
                       value={bidAmount}
                       readOnly
                       aria-label="Bid amount"
@@ -281,7 +281,7 @@ export default function AuctionShow() {
 
                     <Button
                       type="button"
-                      className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border bg-white text-lg shadow-sm"
+                      className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border bg-white text-lg text-black shadow-sm hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-700"
                       onClick={() => {
                         setBidAmount((prev) =>
                           parseFloat((prev + parsedBidIncrement).toFixed(2)),
@@ -294,14 +294,16 @@ export default function AuctionShow() {
                   </div>
 
                   <p className="mt-3 text-sm text-muted-foreground">
-                    {t('auction.minBid')}: $
+                    {t('auction.minBid')}: &nbsp;
                     {parseFloat(minBid.toFixed(2)).toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
+                    €
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {t('auction.increment')}: ${parsedBidIncrement.toFixed(2)}
+                    {t('auction.increment')}:&nbsp;
+                    {parsedBidIncrement.toFixed(2)}€
                   </p>
                   <div className="mt-4 flex flex-col items-center">
                     <span
