@@ -180,11 +180,11 @@ export default function AuctionShow() {
                   {t('auction.currentBid')}
                 </p>
                 <p className="text-4xl font-bold">
-                  $
                   {parseFloat(currentPrice).toLocaleString('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
+                  €
                 </p>
               </div>
               <div className="h-px w-full bg-destructive/50" />
@@ -235,11 +235,12 @@ export default function AuctionShow() {
                         {t('auction.noWinner')}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {t('auction.finalPrice')}: $
+                        {t('auction.finalPrice')}:
                         {parseFloat(currentPrice).toLocaleString('en-US', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
+                        €
                       </p>
                     </div>
                   )}
