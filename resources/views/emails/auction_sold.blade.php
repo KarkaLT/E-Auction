@@ -51,7 +51,7 @@
 
         <p class="muted">Aukciono ID: #{{ $auction->id }} · Pasibaigė: {{ $auction->end_time?->format('Y-m-d H:i') }}</p>
 
-        <p>Toliau koordinuokite pristatymą ir mokėjimą su pirkėju. Jei jūsų platforma tai palaiko, galite valdyti užsakymo vykdymą savo skydelyje.</p>
+        <p>Toliau koordinuokite pristatymą ir mokėjimą su pirkėju.</p>
 
         <p>Dėkojame, kad naudojate E‑Auction!</p>
     </div>

@@ -21,7 +21,7 @@ class AuctionSoldMail extends Mailable
     public function build(): self
     {
         return $this
-            ->subject('Your auction item was sold')
+            ->subject('Jūsų aukciono prekė buvo parduota')
             ->view('emails.auction_sold');
     }
 }

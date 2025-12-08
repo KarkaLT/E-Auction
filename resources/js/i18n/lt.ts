@@ -215,8 +215,7 @@ export const lt = {
       buyerEmail: 'Pirkėjo el. paštas:',
       auctionId: 'Aukciono ID:',
       endedAt: 'Pasibaigė:',
-      nextSteps:
-        'Toliau koordinuokite pristatymą ir mokėjimą su pirkėju. Jei jūsų platforma tai palaiko, galite valdyti užsakymo vykdymą savo skydelyje.',
+      nextSteps: 'Toliau koordinuokite pristatymą ir mokėjimą su pirkėju.',
       thanks: 'Dėkojame, kad naudojate E‑Auction!',
     },
   },
