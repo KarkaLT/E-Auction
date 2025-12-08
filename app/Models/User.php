@@ -25,6 +25,7 @@ class User extends Authenticatable
         'password',
         'role',
         'sidebar_open',
+        'ip_address',
     ];
 
     /**
