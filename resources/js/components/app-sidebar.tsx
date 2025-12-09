@@ -18,6 +18,8 @@ import auctionItems from '@/routes/auction-items';
 import { SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
+  Clock,
+  Crown,
   LayoutDashboard,
   LogIn,
   PlusSquare,
@@ -94,7 +96,7 @@ export function AppSidebar() {
     {
       title: t('auction.endedAuctions'),
       url: '/seller/ended-auctions',
-      icon: LayoutDashboard,
+      icon: Clock,
       visible: user?.role === 'seller',
     },
     {
@@ -106,7 +108,7 @@ export function AppSidebar() {
     {
       title: t('auction.wonAuctions'),
       url: '/buyer/won-auctions',
-      icon: LayoutDashboard,
+      icon: Crown,
       visible: user?.role === 'buyer',
     },
     {

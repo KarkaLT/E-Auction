@@ -398,7 +398,7 @@ export default function AuctionShow() {
                 <textarea
                   value={newCommentBody}
                   onChange={(e) => setNewCommentBody(e.target.value)}
-                  className="min-h-20 w-full rounded-md border bg-muted/10 px-3 py-2 text-sm text-white"
+                  className="min-h-20 w-full rounded-md border bg-muted/10 px-3 py-2 text-sm dark:text-white"
                   placeholder={
                     isLoggedIn
                       ? t('comments.writeComment')
